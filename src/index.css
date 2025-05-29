@@ -1,0 +1,90 @@
+
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    @layer base {
+      :root {
+        --background: 240 10% 3.9%; /* Dark Blue/Grey */
+        --foreground: 0 0% 98%; /* Almost White */
+
+        --card: 240 10% 3.9%;
+        --card-foreground: 0 0% 98%;
+
+        --popover: 240 10% 3.9%;
+        --popover-foreground: 0 0% 98%;
+
+        --primary: 260 80% 60%; /* Vibrant Purple */
+        --primary-foreground: 0 0% 98%;
+
+        --secondary: 220 70% 55%; /* Bright Blue */
+        --secondary-foreground: 0 0% 98%;
+
+        --muted: 240 4.8% 95.9%;
+        --muted-foreground: 240 3.8% 46.1%;
+
+        --accent: 240 4.8% 95.9%;
+        --accent-foreground: 240 5.9% 10%;
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 240 3.7% 15.9%;
+        --input: 240 3.7% 15.9%;
+        --ring: 260 80% 60%; /* Vibrant Purple for focus rings */
+
+        --radius: 0.75rem;
+      }
+
+      .dark {
+        /* These are already dark by default, but explicit for clarity if needed */
+        --background: 240 10% 3.9%;
+        --foreground: 0 0% 98%;
+
+        --card: 240 10% 3.9%;
+        --card-foreground: 0 0% 98%;
+
+        --popover: 240 10% 3.9%;
+        --popover-foreground: 0 0% 98%;
+
+        --primary: 260 80% 60%;
+        --primary-foreground: 0 0% 98%;
+
+        --secondary: 220 70% 55%;
+        --secondary-foreground: 0 0% 98%;
+
+        --muted: 240 3.7% 15.9%;
+        --muted-foreground: 240 5% 64.9%;
+
+        --accent: 240 3.7% 15.9%;
+        --accent-foreground: 0 0% 98%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 240 3.7% 15.9%;
+        --input: 240 3.7% 15.9%;
+        --ring: 260 80% 60%;
+      }
+    }
+
+    @layer base {
+      * {
+        @apply border-border;
+      }
+      body {
+        @apply bg-background text-foreground;
+        font-family: 'Inter', sans-serif;
+      }
+      /* Add Inter font import in index.html or ensure it's available */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    }
+
+    .glassmorphic-card {
+      @apply bg-slate-800/30 backdrop-blur-lg border border-slate-700/50 shadow-xl;
+    }
+
+    .gradient-text {
+      @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+    }
+  
