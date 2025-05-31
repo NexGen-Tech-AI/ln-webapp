@@ -32,7 +32,7 @@ export class EmailServiceSendGrid {
       return { success: true }
     } catch (error) {
       console.error('SendGrid error:', error)
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 

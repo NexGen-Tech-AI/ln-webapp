@@ -27,9 +27,9 @@ export default function ParticleBackground() {
       color: string
       life: number
 
-      constructor() {
-        this.x = Math.random() * canvas.width
-        this.y = Math.random() * canvas.height
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.x = Math.random() * canvasWidth
+        this.y = Math.random() * canvasHeight
         this.vx = (Math.random() - 0.5) * 0.5
         this.vy = Math.random() * -0.5 - 0.5
         this.size = Math.random() * 3 + 1
@@ -48,6 +48,7 @@ export default function ParticleBackground() {
       }
 
       reset() {
+        if (!canvas) return
         this.x = Math.random() * canvas.width
         this.y = canvas.height + 10
         this.vx = (Math.random() - 0.5) * 0.5
@@ -56,6 +57,7 @@ export default function ParticleBackground() {
       }
 
       draw() {
+        if (!ctx) return
         ctx.fillStyle = this.color
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
@@ -65,10 +67,11 @@ export default function ParticleBackground() {
 
     // Initialize particles
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle())
+      particles.push(new Particle(canvas.width, canvas.height))
     }
 
     function animate() {
+      if (!ctx || !canvas) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       
       particles.forEach(particle => {

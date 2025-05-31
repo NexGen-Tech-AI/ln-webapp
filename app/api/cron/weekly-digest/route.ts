@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { emailService } from '@/services/email'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Verify cron secret (you can set this up with Vercel Cron or similar)

@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
@@ -76,8 +78,7 @@
         @apply bg-background text-foreground;
         font-family: 'Inter', sans-serif;
       }
-      /* Add Inter font import in index.html or ensure it's available */
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+      /* Inter font import moved to top of file */
     }
 
     .glassmorphic-card {
@@ -86,5 +87,28 @@
 
     .gradient-text {
       @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+    }
+
+    .bg-primary-gradient {
+      @apply bg-gradient-to-r from-primary to-secondary;
+    }
+
+    @keyframes meteor {
+      0% {
+        transform: rotate(45deg) translateX(0);
+        opacity: 1;
+      }
+      70% {
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(45deg) translateX(300px);
+        opacity: 0;
+      }
+    }
+
+    .animate-meteor {
+      animation: meteor linear infinite;
+      animation-duration: 2s;
     }
   

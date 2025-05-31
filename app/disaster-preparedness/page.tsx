@@ -163,7 +163,9 @@ export default function DisasterPreparednessPage() {
             </p>
           </motion.div>
           
-          <TimelineVisualization />
+          <div className="flex justify-center">
+            <TimelineVisualization />
+          </div>
         </div>
       </section>
 

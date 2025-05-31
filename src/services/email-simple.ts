@@ -25,7 +25,7 @@ export class SimpleEmailService {
       return { success: true }
     } catch (error) {
       console.error('Email queue error:', error)
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
@@ -50,7 +50,7 @@ export class SimpleEmailService {
       return this.queueEmail(user.email, subject, html)
     } catch (error) {
       console.error('Welcome email error:', error)
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 

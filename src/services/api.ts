@@ -2,8 +2,6 @@ import { supabase } from '@/lib/supabase'
 import { Database } from '@/types/database'
 
 type User = Database['public']['Tables']['users']['Row']
-type PilotApplication = Database['public']['Tables']['pilot_applications']['Row']
-type PartnershipRequest = Database['public']['Tables']['partnership_requests']['Row']
 type PaymentMethod = Database['public']['Tables']['payment_methods']['Row']
 
 export class ApiService {
@@ -392,7 +390,7 @@ export class ApiService {
   }
 
   // Audit logging
-  async logAction(action: string, details?: any) {
+  async logAction(action: string, details?: Record<string, unknown>) {
     try {
       const { data: { user } } = await supabase.auth.getUser()
 

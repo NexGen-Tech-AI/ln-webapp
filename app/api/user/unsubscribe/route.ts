@@ -31,7 +31,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Update email preferences
-    const updates: any = {}
+    interface EmailPreferenceUpdates {
+      email_notifications?: boolean
+      email_updates?: boolean
+      email_weekly_digest?: boolean
+    }
+    
+    const updates: EmailPreferenceUpdates = {}
     if (type === 'all') {
       updates.email_notifications = false
       updates.email_updates = false
