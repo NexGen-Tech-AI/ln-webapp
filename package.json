@@ -9,7 +9,9 @@
     "start:next": "next start",
     "lint": "next lint",
     "preview": "next start",
-    "build:prod": "next build"
+    "build:prod": "next build",
+    "get-users": "node scripts/get-user-id.js",
+    "get-user": "node scripts/get-user-id.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.2.1",
@@ -33,6 +35,7 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "dotenv": "^16.5.0",
     "framer-motion": "^10.16.4",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.292.0",

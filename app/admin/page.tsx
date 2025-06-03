@@ -16,6 +16,7 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard'
 import { UserManagement } from '@/components/admin/UserManagement'
 import { SegmentBuilder } from '@/components/admin/SegmentBuilder'
 import { EmailCampaigns } from '@/components/admin/EmailCampaigns'
+import { SecurityDashboard } from '@/components/admin/SecurityDashboard'
 
 export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState(false)
@@ -168,11 +169,12 @@ export default function AdminDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="analytics" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="segments">Segments</TabsTrigger>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
 
         <TabsContent value="analytics" className="space-y-4">
@@ -189,6 +191,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="campaigns" className="space-y-4">
           <EmailCampaigns />
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-4">
+          <SecurityDashboard />
         </TabsContent>
       </Tabs>
     </div>

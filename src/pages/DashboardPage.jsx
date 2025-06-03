@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
     import { useAuth } from '@/contexts/AuthContext';
     import { supabase } from '@/lib/supabase';
     import { Users, Gift, Link as LinkIcon, Share2, Clock, Info, Newspaper, Sparkles, DollarSign, TrendingUp, Briefcase, Target, Heart, BookOpen, ShieldCheck, Calculator, Building, Brain } from 'lucide-react';
+import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
 
     const domainIcons = {
       '💰 financial planning & wealth building': <DollarSign className="w-5 h-5 mr-2 text-primary" />,
@@ -206,11 +207,6 @@ import { useRouter } from 'next/navigation';
         if (url) window.open(url, '_blank');
       };
       
-      const simulateReferral = () => {
-        setShowReferralBoost(true);
-        setTimeout(() => setShowReferralBoost(false), 3000); 
-        toast({ title: "Referral Boost Activated!", description: "Awesome! Someone used your code. You've jumped 100 spots!", variant: "default"})
-      };
 
       const pageVariants = {
         initial: { opacity: 0, scale: 0.95 },
@@ -285,12 +281,12 @@ import { useRouter } from 'next/navigation';
             <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay: 0.2}}>
             <Card className="glassmorphic-card h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg font-medium text-primary">Referral Program</CardTitle>
+                <CardTitle className="text-lg font-medium text-primary">Quick Referral</CardTitle>
                 <Gift className="h-6 w-6 text-primary" />
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Invite others & jump <strong className="text-foreground">100 spots</strong> for each signup!
+                  Invite others & earn rewards when they become paying customers!
                 </p>
                 <div className="flex items-center space-x-2 mb-3">
                   <LinkIcon className="h-4 w-4 text-muted-foreground" />
@@ -301,8 +297,10 @@ import { useRouter } from 'next/navigation';
                   <Button variant="outline" size="sm" onClick={() => handleShare('twitter')}><Share2 className="h-4 w-4 mr-1"/>Tweet</Button>
                   <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')}><Share2 className="h-4 w-4 mr-1"/>Share</Button>
                 </div>
-                <p className="text-sm text-muted-foreground mt-3">Your Referrals: <strong className="text-foreground">{referralCount}</strong></p>
-                <Button size="sm" variant="secondary" className="mt-2 w-full" onClick={simulateReferral}>Simulate Referral!</Button>
+                <p className="text-sm text-muted-foreground mt-3">Total Referrals: <strong className="text-foreground">{referralCount}</strong></p>
+                <Link href="#referrals">
+                  <Button size="sm" variant="secondary" className="mt-2 w-full">View Full Details</Button>
+                </Link>
               </CardContent>
             </Card>
             </motion.div>
@@ -322,9 +320,10 @@ import { useRouter } from 'next/navigation';
           </div>
 
           <Tabs defaultValue="updates" className="w-full">
-             <TabsList className="grid w-full grid-cols-2 md:w-1/2 lg:w-1/3 mb-6 bg-slate-800/50">
-                <TabsTrigger value="updates" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Newspaper className="w-4 h-4"/><span>Platform Updates</span></TabsTrigger>
-                <TabsTrigger value="domains" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Sparkles className="w-4 h-4"/><span>Your Life Domains</span></TabsTrigger>
+             <TabsList className="grid w-full grid-cols-3 md:w-3/4 lg:w-1/2 mb-6 bg-slate-800/50">
+                <TabsTrigger value="updates" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Newspaper className="w-4 h-4"/><span>Updates</span></TabsTrigger>
+                <TabsTrigger value="domains" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Sparkles className="w-4 h-4"/><span>Domains</span></TabsTrigger>
+                <TabsTrigger value="referrals" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Gift className="w-4 h-4"/><span>Referrals</span></TabsTrigger>
             </TabsList>
             
             <TabsContent value="updates">
@@ -390,6 +389,12 @@ import { useRouter } from 'next/navigation';
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
+            </TabsContent>
+            
+            <TabsContent value="referrals">
+              <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay: 0.4}}>
+                <ReferralTracker user={user} />
               </motion.div>
             </TabsContent>
           </Tabs>

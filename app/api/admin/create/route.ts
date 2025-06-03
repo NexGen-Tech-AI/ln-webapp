@@ -1,44 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
-// This is a temporary endpoint to create admin users
-// In production, this should be removed or heavily secured
 export async function POST(request: NextRequest) {
   try {
-    const { userId, secretKey } = await request.json()
-    
-    // Add a secret key check for security
-    // Set this in your environment variables
-    const ADMIN_CREATION_SECRET = process.env.ADMIN_CREATION_SECRET || 'your-secret-key-here'
-    
-    if (secretKey !== ADMIN_CREATION_SECRET) {
+    const body = await request.json()
+    const { userId, secretKey } = body
+
+    // Verify the secret key
+    if (secretKey !== process.env.ADMIN_CREATION_SECRET) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Invalid secret key' },
         { status: 401 }
       )
     }
 
-    // Create admin user
-    const { error } = await supabaseAdmin
-      .from('admin_users')
-      .upsert({
-        user_id: userId,
-        role: 'admin',
-        permissions: {
-          analytics: true,
-          users: true,
-          segments: true,
-          campaigns: true
+    // Verify user ID is in allowed list
+    const allowedUserIds = process.env.ADMIN_USER_IDS?.split(',') || []
+    if (!allowedUserIds.includes(userId)) {
+      return NextResponse.json(
+        { error: 'User ID not in allowed list' },
+        { status: 403 }
+      )
+    }
+
+    // Create admin client
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
         }
+      }
+    )
+
+    // Check if admin already exists
+    const { data: existingAdmin } = await supabaseAdmin
+      .from('admin_users')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    if (existingAdmin) {
+      return NextResponse.json(
+        { message: 'Admin user already exists' },
+        { status: 200 }
+      )
+    }
+
+    // Create admin user
+    const { data, error } = await supabaseAdmin
+      .from('admin_users')
+      .insert({
+        user_id: userId,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating admin:', error)
+      return NextResponse.json(
+        { error: 'Failed to create admin user' },
+        { status: 500 }
+      )
+    }
+
+    // Log the admin creation
+    await supabaseAdmin
+      .from('audit_logs')
+      .insert({
+        user_id: userId,
+        action: 'admin_created',
+        details: { created_by: 'setup_script' },
+        ip_address: request.headers.get('x-forwarded-for') || 'unknown',
+        user_agent: request.headers.get('user-agent') || 'unknown'
       })
 
-    if (error) throw error
-
-    return NextResponse.json({ success: true, message: 'Admin user created' })
+    return NextResponse.json({
+      message: 'Admin user created successfully',
+      data
+    })
   } catch (error) {
     console.error('Admin creation error:', error)
     return NextResponse.json(
-      { error: 'Failed to create admin user' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
