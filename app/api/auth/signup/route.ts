@@ -19,11 +19,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = signupSchema.parse(body)
 
-    // Create auth user
+    // Create auth user with metadata
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: validatedData.email,
       password: validatedData.password,
-      email_confirm: true,
+      email_confirm: false, // Don't auto-confirm, let them verify
+      user_metadata: {
+        name: validatedData.name,
+        profession: validatedData.profession,
+        company: validatedData.company,
+        interests: validatedData.interests,
+        tierPreference: validatedData.tierPreference,
+        referralCode: validatedData.referralCode,
+      }
     })
 
     if (authError) {
@@ -33,23 +41,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update user profile
+    // The trigger will handle initial user creation with metadata
+    // Now we can safely upsert to ensure all data is saved
     if (authData.user) {
       const { error: profileError } = await supabaseAdmin
         .from('users')
-        .update({
+        .upsert({
+          id: authData.user.id,
+          email: validatedData.email,
           name: validatedData.name,
           profession: validatedData.profession,
           company: validatedData.company,
           interests: validatedData.interests,
           tier_preference: validatedData.tierPreference,
           referred_by: validatedData.referralCode,
-          email_verified: true,
+        }, {
+          onConflict: 'id'
         })
-        .eq('id', authData.user.id)
 
       if (profileError) {
-        console.error('Profile update error:', profileError)
+        console.error('Profile upsert error:', profileError)
+        // Don't fail the whole signup if profile update fails
+        // The trigger should have created the basic record
       }
 
       // Increment referral count if referral code was used

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
     import { motion } from 'framer-motion';
     import { Button } from '@/components/ui/button';
@@ -53,6 +53,14 @@ import { useRouter } from 'next/navigation';
       const { toast } = useToast();
       const router = useRouter();
       const { signup } = useAuth();
+
+      // Check for referral code in localStorage on mount
+      useEffect(() => {
+        const savedReferralCode = localStorage.getItem('referralCode');
+        if (savedReferralCode) {
+          setFormData(prev => ({ ...prev, referralCode: savedReferralCode }));
+        }
+      }, []);
 
       const handleInputChange = (e) => {
         const { name, value } = e.target;

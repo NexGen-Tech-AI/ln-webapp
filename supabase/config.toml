@@ -1,0 +1,24 @@
+# Supabase Auth Configuration
+
+[auth]
+# Site URL for redirects
+site_url = "http://localhost:3000"
+
+[auth.email]
+# Enable email auth
+enable_signup = true
+enable_confirmations = true
+
+# Email templates
+[auth.email.template.confirmation]
+subject = "Confirm your LifeNavigator account"
+content_path = "./email-templates/confirmation.html"
+
+# Redirect URLs
+[auth.email.template.confirmation.redirect_to]
+# This will redirect to our custom confirmation page
+default = "http://localhost:3000/auth/confirm"
+
+# For production, update these URLs
+# site_url = "https://lifenavigator.com"
+# default = "https://lifenavigator.com/auth/confirm"

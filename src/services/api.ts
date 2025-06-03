@@ -17,57 +17,37 @@ export class ApiService {
     referralCode?: string
   }) {
     try {
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Use the API route for signup
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          profession: data.profession,
+          company: data.company,
+          interests: data.interests,
+          tierPreference: data.tierPreference,
+          referralCode: data.referralCode,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Signup failed')
+      }
+
+      // Sign in the user after successful signup
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       })
 
-      if (authError) throw authError
-
-      // Update user profile (the trigger should have created the user record)
-      if (authData.user) {
-        // Wait a moment for the trigger to create the user record
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        const { error: profileError } = await supabase
-          .from('users')
-          .update({
-            name: data.name,
-            profession: data.profession,
-            company: data.company,
-            interests: data.interests,
-            tier_preference: data.tierPreference,
-            referred_by: data.referralCode,
-          })
-          .eq('id', authData.user.id)
-
-        if (profileError) {
-          console.error('Profile update error:', profileError)
-          // If update fails, try insert
-          const { error: insertError } = await supabase
-            .from('users')
-            .insert({
-              id: authData.user.id,
-              email: data.email,
-              name: data.name,
-              profession: data.profession,
-              company: data.company,
-              interests: data.interests,
-              tier_preference: data.tierPreference,
-              referred_by: data.referralCode,
-            })
-          
-          if (insertError) throw insertError
-        }
-
-        // Increment referral count if referral code was used
-        if (data.referralCode) {
-          await supabase.rpc('increment_referral_count', { 
-            referral_code: data.referralCode 
-          })
-        }
-      }
+      if (signInError) throw signInError
 
       return { success: true, user: authData.user }
     } catch (error) {

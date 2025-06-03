@@ -184,17 +184,18 @@ import { useRouter } from 'next/navigation';
       const launchDate = "2025-08-01T00:00:00Z"; // August 1, 2025 
 
       const handleShare = async (platform) => {
-        const shareText = `I'm on the waitlist for LifeNavigator, the ultimate Life Management Platform for empire builders! Manage wealth, health, career & more. Join with my code ${referralCode} to get a boost:`;
-        const shareUrl = window.location.origin; 
+        const baseUrl = window.location.origin;
+        const referralLink = `${baseUrl}/referral/${referralCode}`;
+        const shareText = `I'm on the waitlist for LifeNavigator! Join with my referral link to jump 100 spots in line:`;
         let url = '';
 
         if (platform === 'twitter') {
-          url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+          url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(referralLink)}`;
         } else if (platform === 'linkedin') {
-          url = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent("Join the LifeNavigator Waitlist!")}&summary=${encodeURIComponent(shareText)}`;
+          url = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(referralLink)}&title=${encodeURIComponent("Join the LifeNavigator Waitlist!")}&summary=${encodeURIComponent(shareText)}`;
         } else if (platform === 'copy') {
             try {
-                await navigator.clipboard.writeText(`${shareText} ${shareUrl} Referral Code: ${referralCode}`);
+                await navigator.clipboard.writeText(referralLink);
                 toast({ title: "Referral Link Copied!", description: "Share it with your network to climb the ranks!", variant: 'default' });
             } catch (err) {
                 toast({ title: "Copy Failed", description: "Could not copy to clipboard. Please try again.", variant: "destructive" });
@@ -293,7 +294,7 @@ import { useRouter } from 'next/navigation';
                 </p>
                 <div className="flex items-center space-x-2 mb-3">
                   <LinkIcon className="h-4 w-4 text-muted-foreground" />
-                  <Input type="text" readOnly value={referralCode} className="bg-background/50 text-sm p-2"/>
+                  <Input type="text" readOnly value={`${window.location.origin}/referral/${referralCode}`} className="bg-background/50 text-sm p-2"/>
                 </div>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm" onClick={() => handleShare('copy')} className="flex-1">Copy</Button>
