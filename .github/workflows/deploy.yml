@@ -1,0 +1,229 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Deployment type'
+        required: true
+        default: 'vps'
+        type: choice
+        options:
+          - vps
+          - ftp
+
+env:
+  NODE_VERSION: '18.x'
+  PM2_APP_NAME: 'lifenav-waitlist'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linter
+      run: npm run lint || true
+    
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+  deploy-vps:
+    needs: test
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && (github.event_name == 'push' || github.event.inputs.deployment_type == 'vps')
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+    
+    - name: Setup SSH Key
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -p ${{ secrets.HOSTINGER_SSH_PORT || 22 }} ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: Create deployment package
+      run: |
+        mkdir -p .deploy
+        cp -r .next .deploy/
+        cp -r public .deploy/
+        cp package*.json .deploy/
+        cp server.js .deploy/
+        cp ecosystem.config.js .deploy/
+        cp next.config.js .deploy/
+        
+        # Create .env.local from secrets
+        cat > .deploy/.env.local << EOF
+        NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+        SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
+        SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}
+        ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+        ADMIN_PASSWORD_HASH=${{ secrets.ADMIN_PASSWORD_HASH }}
+        ADMIN_IP_WHITELIST=${{ secrets.ADMIN_IP_WHITELIST }}
+        JWT_SECRET=${{ secrets.JWT_SECRET }}
+        STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+        STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+        EOF
+    
+    - name: Deploy to VPS
+      env:
+        HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
+        HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+        HOSTINGER_DIR: ${{ secrets.HOSTINGER_DIR || '/var/www/lifenav' }}
+        SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT || 22 }}
+      run: |
+        cd .deploy
+        tar -czf ../deploy.tar.gz .
+        cd ..
+        
+        # Upload to server
+        scp -P $SSH_PORT deploy.tar.gz $HOSTINGER_USER@$HOSTINGER_HOST:/tmp/
+        
+        # Deploy on server
+        ssh -p $SSH_PORT $HOSTINGER_USER@$HOSTINGER_HOST << 'ENDSSH'
+        set -e
+        
+        # Navigate to app directory
+        cd ${{ env.HOSTINGER_DIR }} || mkdir -p ${{ env.HOSTINGER_DIR }} && cd ${{ env.HOSTINGER_DIR }}
+        
+        # Backup current deployment
+        if [ -d ".next" ]; then
+            echo "Backing up current deployment..."
+            backup_dir="backup_$(date +%Y%m%d_%H%M%S)"
+            mkdir -p $backup_dir
+            cp -r .next $backup_dir/
+            cp -r public $backup_dir/
+            cp .env.local $backup_dir/ 2>/dev/null || true
+        fi
+        
+        # Extract new deployment
+        echo "Extracting new files..."
+        tar -xzf /tmp/deploy.tar.gz
+        rm /tmp/deploy.tar.gz
+        
+        # Install production dependencies
+        echo "Installing dependencies..."
+        npm ci --production
+        
+        # Run database migrations if needed
+        if [ -f "scripts/apply-migrations.sh" ]; then
+            echo "Running database migrations..."
+            bash scripts/apply-migrations.sh
+        fi
+        
+        # Restart application with PM2
+        echo "Restarting application..."
+        pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js
+        pm2 save
+        
+        # Clean up old backups (keep last 3)
+        ls -t backup_* 2>/dev/null | tail -n +4 | xargs -r rm -rf
+        
+        echo "✅ Deployment complete!"
+        ENDSSH
+    
+    - name: Health check
+      run: |
+        echo "Waiting for application to start..."
+        sleep 10
+        
+        # Check if the app is responding
+        response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.NEXT_PUBLIC_APP_URL }})
+        if [ $response -eq 200 ]; then
+          echo "✅ Health check passed!"
+        else
+          echo "❌ Health check failed! HTTP status: $response"
+          exit 1
+        fi
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        rm -rf ~/.ssh/id_rsa
+        rm -rf .deploy deploy.tar.gz
+
+  deploy-ftp:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event.inputs.deployment_type == 'ftp'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+    
+    - name: Create deployment package
+      run: |
+        mkdir -p deploy
+        cp -r .next deploy/
+        cp -r public deploy/
+        cp package*.json deploy/
+        cp server.js deploy/
+        cp next.config.js deploy/
+        echo "${{ secrets.ENV_LOCAL }}" > deploy/.env.local
+    
+    - name: Deploy to Hostinger via FTP
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./deploy/
+        server-dir: ./domains/${{ secrets.DOMAIN }}/public_html/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          .env.local

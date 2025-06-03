@@ -1,0 +1,129 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      backup_timestamp:
+        description: 'Backup timestamp to restore (e.g., 20250306_143022)'
+        required: false
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Setup SSH Key
+      env:
+        SSH_PRIVATE_KEY: ${{ github.event.inputs.environment == 'production' && secrets.HOSTINGER_SSH_KEY || secrets.STAGING_SSH_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        
+        if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+          ssh-keyscan -p ${{ secrets.HOSTINGER_SSH_PORT || 22 }} ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts
+        else
+          ssh-keyscan -p ${{ secrets.STAGING_SSH_PORT || 22 }} ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
+        fi
+    
+    - name: Perform Rollback
+      env:
+        ENV_TYPE: ${{ github.event.inputs.environment }}
+        BACKUP_TS: ${{ github.event.inputs.backup_timestamp }}
+        PROD_USER: ${{ secrets.HOSTINGER_USER }}
+        PROD_HOST: ${{ secrets.HOSTINGER_HOST }}
+        PROD_DIR: ${{ secrets.HOSTINGER_DIR || '/var/www/lifenav' }}
+        PROD_PORT: ${{ secrets.HOSTINGER_SSH_PORT || 22 }}
+        STAGING_USER: ${{ secrets.STAGING_USER }}
+        STAGING_HOST: ${{ secrets.STAGING_HOST }}
+        STAGING_DIR: ${{ secrets.STAGING_DIR || '/var/www/lifenav-staging' }}
+        STAGING_PORT: ${{ secrets.STAGING_SSH_PORT || 22 }}
+      run: |
+        if [ "$ENV_TYPE" == "production" ]; then
+          SSH_USER=$PROD_USER
+          SSH_HOST=$PROD_HOST
+          SSH_DIR=$PROD_DIR
+          SSH_PORT=$PROD_PORT
+          APP_NAME="lifenav-waitlist"
+        else
+          SSH_USER=$STAGING_USER
+          SSH_HOST=$STAGING_HOST
+          SSH_DIR=$STAGING_DIR
+          SSH_PORT=$STAGING_PORT
+          APP_NAME="lifenav-staging"
+        fi
+        
+        ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << ENDSSH
+        set -e
+        
+        cd $SSH_DIR
+        
+        # List available backups if no timestamp provided
+        if [ -z "$BACKUP_TS" ]; then
+          echo "Available backups:"
+          ls -la backup_* 2>/dev/null || echo "No backups found"
+          exit 1
+        fi
+        
+        # Check if backup exists
+        if [ ! -d "backup_$BACKUP_TS" ]; then
+          echo "❌ Backup backup_$BACKUP_TS not found!"
+          echo "Available backups:"
+          ls -la backup_* 2>/dev/null || echo "No backups found"
+          exit 1
+        fi
+        
+        echo "🔄 Rolling back to backup_$BACKUP_TS..."
+        
+        # Backup current deployment before rollback
+        if [ -d ".next" ]; then
+          echo "Backing up current deployment..."
+          rm -rf backup_rollback_temp
+          mkdir backup_rollback_temp
+          cp -r .next backup_rollback_temp/
+          cp -r public backup_rollback_temp/
+          cp .env.local backup_rollback_temp/ 2>/dev/null || true
+        fi
+        
+        # Restore from backup
+        echo "Restoring from backup..."
+        rm -rf .next public
+        cp -r backup_$BACKUP_TS/.next .
+        cp -r backup_$BACKUP_TS/public .
+        cp backup_$BACKUP_TS/.env.local . 2>/dev/null || true
+        
+        # Restart application
+        echo "Restarting application..."
+        pm2 reload $APP_NAME || pm2 restart $APP_NAME
+        pm2 save
+        
+        echo "✅ Rollback complete!"
+        echo "Application rolled back to backup from $BACKUP_TS"
+        ENDSSH
+    
+    - name: Health Check
+      env:
+        APP_URL: ${{ github.event.inputs.environment == 'production' && secrets.NEXT_PUBLIC_APP_URL || secrets.STAGING_APP_URL }}
+      run: |
+        echo "Waiting for application to start..."
+        sleep 10
+        
+        response=$(curl -s -o /dev/null -w "%{http_code}" $APP_URL)
+        if [ $response -eq 200 ]; then
+          echo "✅ Health check passed after rollback!"
+        else
+          echo "❌ Health check failed! HTTP status: $response"
+          exit 1
+        fi
+    
+    - name: Cleanup
+      if: always()
+      run: rm -rf ~/.ssh/id_rsa
