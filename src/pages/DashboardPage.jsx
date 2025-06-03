@@ -68,16 +68,16 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
           return;
         }
         timerComponents.push(
-          <div key={interval} className="text-center glassmorphic-card p-3 rounded-lg">
-            <span className="text-3xl font-bold gradient-text">{timeLeft[interval]}</span>
+          <div key={interval} className="text-center glassmorphic-card p-2 sm:p-3 rounded-lg">
+            <span className="text-xl sm:text-2xl md:text-3xl font-bold gradient-text">{timeLeft[interval]}</span>
             <span className="block text-xs uppercase text-muted-foreground">{interval}</span>
           </div>
         );
       });
 
       return (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {timerComponents.length ? timerComponents : <span className="col-span-full text-center text-2xl font-semibold text-primary">LifeNavigator is Launching!</span>}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+          {timerComponents.length ? timerComponents : <span className="col-span-full text-center text-lg sm:text-xl md:text-2xl font-semibold text-primary">LifeNavigator is Launching!</span>}
         </div>
       );
     };
@@ -241,14 +241,14 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
           exit="out"
           variants={pageVariants}
           transition={pageTransition}
-          className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12"
+          className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-8 sm:pb-12"
         >
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">Welcome, Navigator <span className="gradient-text">{name}!</span></h1>
-            <p className="text-xl text-muted-foreground">{getPersonalizedMessage()}</p>
+          <div className="mb-6 sm:mb-8 md:mb-12">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2">Welcome, Navigator <span className="gradient-text">{name}!</span></h1>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground">{getPersonalizedMessage()}</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay: 0.1}}>
               <Card className="glassmorphic-card h-full">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -256,14 +256,14 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                   <Users className="h-6 w-6 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-4xl font-bold relative">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold relative">
                     #{waitlistPosition.toLocaleString()}
                     {showReferralBoost && (
                       <motion.span 
                         initial={{ opacity: 0, y: 0, scale:0.5 }}
                         animate={{ opacity: [0,1,0], y: -40, scale: [0.5,1.5,0.5] }}
                         transition={{ duration: 1.5, ease: "circOut" }}
-                        className="absolute -top-2 -right-12 text-2xl font-bold text-green-400"
+                        className="absolute -top-2 right-0 sm:-right-12 text-lg sm:text-xl md:text-2xl font-bold text-green-400"
                       >
                         -100!
                       </motion.span>
@@ -289,13 +289,21 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                   Invite others & earn rewards when they become paying customers!
                 </p>
                 <div className="flex items-center space-x-2 mb-3">
-                  <LinkIcon className="h-4 w-4 text-muted-foreground" />
-                  <Input type="text" readOnly value={`${window.location.origin}/referral/${referralCode}`} className="bg-background/50 text-sm p-2"/>
+                  <LinkIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <Input type="text" readOnly value={`${window.location.origin}/referral/${referralCode}`} className="bg-background/50 text-xs sm:text-sm p-2 truncate"/>
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => handleShare('copy')} className="flex-1">Copy</Button>
-                  <Button variant="outline" size="sm" onClick={() => handleShare('twitter')}><Share2 className="h-4 w-4 mr-1"/>Tweet</Button>
-                  <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')}><Share2 className="h-4 w-4 mr-1"/>Share</Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleShare('copy')} className="flex-1 min-h-[44px]">Copy</Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleShare('twitter')} className="flex-1 min-h-[44px]">
+                      <Share2 className="h-4 w-4 sm:mr-1"/>
+                      <span className="hidden sm:inline">Tweet</span>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')} className="flex-1 min-h-[44px]">
+                      <Share2 className="h-4 w-4 sm:mr-1"/>
+                      <span className="hidden sm:inline">Share</span>
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">Total Referrals: <strong className="text-foreground">{referralCount}</strong></p>
                 <Link href="#referrals">
@@ -320,11 +328,22 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
           </div>
 
           <Tabs defaultValue="updates" className="w-full">
-             <TabsList className="grid w-full grid-cols-3 md:w-3/4 lg:w-1/2 mb-6 bg-slate-800/50">
-                <TabsTrigger value="updates" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Newspaper className="w-4 h-4"/><span>Updates</span></TabsTrigger>
-                <TabsTrigger value="domains" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Sparkles className="w-4 h-4"/><span>Domains</span></TabsTrigger>
-                <TabsTrigger value="referrals" className="flex items-center space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"><Gift className="w-4 h-4"/><span>Referrals</span></TabsTrigger>
-            </TabsList>
+             <div className="overflow-x-auto mb-6">
+               <TabsList className="grid w-full min-w-[300px] grid-cols-3 md:w-3/4 lg:w-1/2 bg-slate-800/50">
+                  <TabsTrigger value="updates" className="flex items-center justify-center space-x-1 sm:space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm">
+                    <Newspaper className="w-3 h-3 sm:w-4 sm:h-4"/>
+                    <span>Updates</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="domains" className="flex items-center justify-center space-x-1 sm:space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm">
+                    <Sparkles className="w-3 h-3 sm:w-4 sm:h-4"/>
+                    <span>Domains</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="referrals" className="flex items-center justify-center space-x-1 sm:space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm">
+                    <Gift className="w-3 h-3 sm:w-4 sm:h-4"/>
+                    <span>Referrals</span>
+                  </TabsTrigger>
+               </TabsList>
+             </div>
             
             <TabsContent value="updates">
               <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay: 0.4}}>
@@ -333,17 +352,17 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                   <CardTitle className="text-2xl">LifeNavigator News & Previews</CardTitle>
                   <CardDescription>The latest updates, filtered by your selected life domains.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+                <CardContent className="space-y-4 sm:space-y-6 max-h-[300px] sm:max-h-[400px] md:max-h-[500px] overflow-y-auto pr-2">
                   {filteredUpdates.length > 0 ? filteredUpdates.map(update => (
                     <div key={update.id} className="pb-4 border-b border-border last:border-b-0">
-                      <div className="flex justify-between items-start mb-1">
-                        <h3 className="text-lg font-semibold text-primary ">{update.title}</h3>
-                        <span className="text-xs capitalize px-2 py-1 rounded-full bg-primary/10 text-primary-foreground border border-primary/30 whitespace-nowrap ml-2">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1 gap-1 sm:gap-2">
+                        <h3 className="text-sm sm:text-base md:text-lg font-semibold text-primary">{update.title}</h3>
+                        <span className="text-xs capitalize px-2 py-1 rounded-full bg-primary/10 text-primary-foreground border border-primary/30 whitespace-nowrap self-start flex-shrink-0">
                           {update.domain.split(" ")[0]}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{new Date(update.date).toLocaleDateString()} - <span className="font-medium text-foreground">{update.type}</span></p>
-                      <p className="text-foreground text-sm">{update.content}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2">{new Date(update.date).toLocaleDateString()} - <span className="font-medium text-foreground">{update.type}</span></p>
+                      <p className="text-foreground text-xs sm:text-sm">{update.content}</p>
                     </div>
                   )) : (
                     <p className="text-muted-foreground">No specific updates for your selected domains right now, but general platform news will appear here!</p>
@@ -382,8 +401,8 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                     <p className="text-muted-foreground">You haven't selected any specific life domains yet. Update these in settings (once available) to personalize your dashboard!</p>
                   )}
                   <div className="mt-4 p-3 rounded-md border border-dashed border-primary/50 bg-primary/10">
-                    <p className="text-sm text-primary flex items-center">
-                      <Info className="w-4 h-4 mr-2 shrink-0" />
+                    <p className="text-xs sm:text-sm text-primary flex items-start sm:items-center">
+                      <Info className="w-4 h-4 mr-2 shrink-0 mt-0.5 sm:mt-0" />
                       <span>Your chosen tier: <strong className="capitalize">{tierPreference.replace(" Navigator", "")} Navigator</strong>. You'll unlock features based on this tier at launch.</span>
                     </p>
                   </div>

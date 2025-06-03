@@ -1,0 +1,207 @@
+/* Global Responsive Fixes */
+
+/* Prevent horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Fix for long URLs and text that might overflow */
+.truncate-all {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Responsive table wrapper */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper table {
+  min-width: 600px;
+}
+
+/* Card responsive padding */
+@media (max-width: 640px) {
+  .glassmorphic-card {
+    padding: 1rem;
+  }
+  
+  /* Reduce button sizes on mobile */
+  .btn-responsive {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Stack form elements on mobile */
+  .form-stack > * {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Fix for modals on mobile */
+@media (max-width: 640px) {
+  .modal-content {
+    width: calc(100vw - 2rem);
+    margin: 1rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+}
+
+/* Responsive grid utilities */
+.grid-responsive {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-responsive-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Fix for countdown timer spacing */
+@media (max-width: 640px) {
+  .countdown-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+/* Navigation fixes */
+@media (max-width: 768px) {
+  .nav-mobile-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .nav-mobile-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Input group responsive */
+@media (max-width: 640px) {
+  .input-group {
+    flex-direction: column;
+  }
+  
+  .input-group > * {
+    width: 100%;
+    border-radius: 0.375rem !important;
+  }
+}
+
+/* Hero section responsive spacing */
+@media (max-width: 640px) {
+  .hero-section {
+    padding-top: 5rem;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Tab responsive overflow */
+.tabs-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.tabs-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tabs-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* Progress bar text responsive */
+@media (max-width: 640px) {
+  .progress-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* Feature card responsive */
+@media (max-width: 640px) {
+  .feature-card-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .feature-card-title {
+    font-size: 1.125rem;
+  }
+  
+  .feature-card-description {
+    font-size: 0.875rem;
+  }
+}
+
+/* Dashboard stat cards responsive */
+@media (max-width: 640px) {
+  .stat-card-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-card-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* Responsive utilities */
+.hide-mobile {
+  @media (max-width: 640px) {
+    display: none !important;
+  }
+}
+
+.show-mobile {
+  @media (min-width: 641px) {
+    display: none !important;
+  }
+}
+
+/* Responsive text wrapping */
+.text-wrap-balance {
+  text-wrap: balance;
+}
+
+/* Fix for very small screens */
+@media (max-width: 360px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .text-xs-small {
+    font-size: 0.75rem;
+  }
+  
+  .btn-xs-small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}

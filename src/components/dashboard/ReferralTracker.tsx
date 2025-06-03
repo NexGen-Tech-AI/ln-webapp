@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
-import { supabase } from '@/lib/supabase'
 import { 
   Gift, LinkIcon, Share2, Users, DollarSign, Clock,
   TrendingUp, Award, Shield, CheckCircle2, AlertCircle
@@ -122,7 +122,7 @@ export function ReferralTracker({ user }: { user: any }) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2">
+              <CardTitle className="text-xl sm:text-2xl flex items-center gap-2">
                 <Gift className="h-6 w-6 text-primary" />
                 Referral Program
               </CardTitle>
@@ -137,7 +137,7 @@ export function ReferralTracker({ user }: { user: any }) {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Referral Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="text-center p-4 rounded-lg bg-secondary/20">
               <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
               <div className="text-2xl font-bold">{stats?.acknowledged || 0}</div>
@@ -175,24 +175,26 @@ export function ReferralTracker({ user }: { user: any }) {
           <div className="space-y-3">
             <Label>Your Referral Link</Label>
             <div className="flex items-center space-x-2">
-              <LinkIcon className="h-4 w-4 text-muted-foreground" />
+              <LinkIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <Input 
                 type="text" 
                 readOnly 
                 value={`${window.location.origin}/referral/${user.referral_code}`} 
-                className="bg-background/50"
+                className="bg-background/50 text-xs sm:text-sm truncate"
               />
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button variant="outline" size="sm" onClick={() => handleShare('copy')} className="flex-1">
                 Copy Link
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleShare('twitter')}>
-                <Share2 className="h-4 w-4 mr-1"/>Twitter
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')}>
-                <Share2 className="h-4 w-4 mr-1"/>LinkedIn
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleShare('twitter')} className="flex-1">
+                  <Share2 className="h-4 w-4 mr-1"/><span className="hidden sm:inline">Twitter</span><span className="sm:hidden">X</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')} className="flex-1">
+                  <Share2 className="h-4 w-4 mr-1"/><span className="hidden sm:inline">LinkedIn</span><span className="sm:hidden">LI</span>
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -285,6 +287,3 @@ export function ReferralTracker({ user }: { user: any }) {
   )
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <label className="text-sm font-medium">{children}</label>
-}

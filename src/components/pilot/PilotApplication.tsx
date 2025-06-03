@@ -151,7 +151,7 @@ export default function PilotApplication({ onComplete }: { onComplete: () => voi
     >
       <Card className="w-full max-w-2xl mx-auto glassmorphic-card shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold gradient-text">
+          <CardTitle className="text-xl sm:text-2xl font-bold gradient-text">
             Apply for Pilot Program
           </CardTitle>
           <CardDescription>
@@ -320,15 +320,16 @@ export default function PilotApplication({ onComplete }: { onComplete: () => voi
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between pt-6">
+        <CardFooter className="flex justify-between pt-6 gap-4">
           <Button
             variant="outline"
             onClick={prevStep}
             disabled={step === 1 || isSubmitting}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Previous</span>
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Back</span>
           </Button>
           <Button
             onClick={nextStep}

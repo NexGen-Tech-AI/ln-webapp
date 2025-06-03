@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
-
 import { supabaseAdmin } from '@/lib/supabase'
+import { emailTemplateService } from './email-templates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'LifeNavigator <noreply@lifenavigator.com>'
@@ -354,38 +354,35 @@ The LifeNavigator Team`
     try {
       const { data: user, error } = await supabaseAdmin
         .from('users')
-        .select('email, name, position, referral_code')
+        .select('email, name, position, referral_code, verification_token')
         .eq('id', userId)
         .single()
 
       if (error || !user) throw error
 
-      const template = this.getWelcomeEmailTemplate(
-        user.name || '',
+      // Generate verification URL
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const verificationUrl = `${baseUrl}/auth/confirm?token=${user.verification_token}`
+
+      // Use the new beautiful template
+      const result = await emailTemplateService.sendWelcomeEmail(
         user.email,
-        user.position,
-        user.referral_code
+        user.name || '',
+        verificationUrl
       )
 
-      const result = await resend.emails.send({
-        from: FROM_EMAIL,
-        to: user.email,
-        subject: template.subject,
-        html: template.html,
-        text: template.text,
-        reply_to: REPLY_TO,
-      })
+      if (result.success) {
+        // Log the email send
+        await supabaseAdmin
+          .from('audit_logs')
+          .insert({
+            user_id: userId,
+            action: 'email_sent',
+            details: { type: 'welcome', email: user.email }
+          })
+      }
 
-      // Log the email send
-      await supabaseAdmin
-        .from('audit_logs')
-        .insert({
-          user_id: userId,
-          action: 'email_sent',
-          details: { type: 'welcome', email: user.email }
-        })
-
-      return { success: true, id: result.data?.id }
+      return result
     } catch (error) {
       console.error('Failed to send welcome email:', error)
       return { success: false, error: error instanceof Error ? error.message : String(error) }

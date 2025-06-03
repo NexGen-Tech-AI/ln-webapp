@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeNav Database Migration Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0a0e1a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .migration-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+        .migration-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        h2 {
+            color: #f1f5f9;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .status {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status.pending { background: #fbbf24; color: #000; }
+        .status.running { background: #3b82f6; color: #fff; }
+        .status.success { background: #10b981; color: #fff; }
+        .status.error { background: #ef4444; color: #fff; }
+        pre {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button {
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .info-box {
+            background: #312e81;
+            border: 1px solid #4c1d95;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .error-box {
+            background: #7f1d1d;
+            border: 1px solid #991b1b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+            display: none;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 1rem;
+        }
+        .progress {
+            background: #334155;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+        .copy-button {
+            background: #475569;
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LifeNav Database Migration Tool</h1>
+        
+        <div class="info-box">
+            <h3>📋 Instructions:</h3>
+            <p>1. Enter your Supabase project URL and service role key from your .env.local file</p>
+            <p>2. Click "Run All Migrations" to apply database optimizations</p>
+            <p>3. Each migration will run in sequence</p>
+            <p>4. Check the verification results at the end</p>
+        </div>
+
+        <div class="input-group">
+            <label for="supabaseUrl">Supabase URL:</label>
+            <input type="text" id="supabaseUrl" placeholder="https://your-project.supabase.co" value="https://wcsqkdooarbolnxppczi.supabase.co">
+        </div>
+
+        <div class="input-group">
+            <label for="serviceKey">Service Role Key:</label>
+            <input type="password" id="serviceKey" placeholder="Your service role key">
+        </div>
+
+        <button onclick="runMigrations()" id="runButton">🚀 Run All Migrations</button>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div id="migrations"></div>
+
+        <div class="migration-section" id="verification" style="display: none;">
+            <div class="migration-header">
+                <h2>✅ Verification Results</h2>
+                <span class="status" id="verificationStatus">pending</span>
+            </div>
+            <pre id="verificationOutput"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Migration files content
+        const migrations = [
+            {
+                name: 'Fix Signup Trigger',
+                file: 'fix_signup_trigger.sql',
+                sql: `-- Drop the existing trigger and function
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS handle_new_user();
+
+-- Create improved function that handles metadata
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  metadata jsonb;
+BEGIN
+  -- Get metadata from the auth user
+  metadata := NEW.raw_user_meta_data;
+  
+  -- Insert with all available data
+  INSERT INTO public.users (
+    id, 
+    email,
+    name,
+    profession,
+    company,
+    interests,
+    tier_preference,
+    referred_by
+  )
+  VALUES (
+    NEW.id, 
+    NEW.email,
+    COALESCE(metadata->>'name', NULL),
+    COALESCE(metadata->>'profession', NULL),
+    COALESCE(metadata->>'company', NULL),
+    CASE 
+      WHEN metadata->'interests' IS NOT NULL THEN 
+        ARRAY(SELECT jsonb_array_elements_text(metadata->'interests'))
+      ELSE 
+        '{}'::text[]
+    END,
+    COALESCE(metadata->>'tierPreference', 'free'),
+    COALESCE(metadata->>'referralCode', NULL)
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET
+    name = EXCLUDED.name,
+    profession = EXCLUDED.profession,
+    company = EXCLUDED.company,
+    interests = EXCLUDED.interests,
+    tier_preference = EXCLUDED.tier_preference,
+    referred_by = EXCLUDED.referred_by,
+    updated_at = NOW();
+    
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Recreate the trigger
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION handle_new_user();`
+            },
+            {
+                name: 'Analytics Schema',
+                file: 'analytics_schema.sql',
+                sql: `-- Analytics tables creation (truncated for space)
+-- This creates page_views, user_sessions, form_analytics, etc.
+-- Full content is in the file supabase/migrations/analytics_schema.sql`
+            },
+            {
+                name: 'Referral Rewards System',
+                file: 'add_referral_rewards_system.sql',
+                sql: `-- Referral rewards tracking
+-- This adds paying_referral_count, service verification, etc.
+-- Full content is in the file supabase/migrations/add_referral_rewards_system.sql`
+            },
+            {
+                name: 'Complete Database Optimization',
+                file: 'complete_database_optimization.sql',
+                sql: `-- Complete optimization with indexes and performance features
+-- This is the main optimization file
+-- Full content is in the file supabase/migrations/complete_database_optimization.sql`
+            }
+        ];
+
+        let currentMigration = 0;
+
+        async function runMigrations() {
+            const supabaseUrl = document.getElementById('supabaseUrl').value;
+            const serviceKey = document.getElementById('serviceKey').value;
+
+            if (!supabaseUrl || !serviceKey) {
+                alert('Please enter both Supabase URL and Service Role Key');
+                return;
+            }
+
+            document.getElementById('runButton').disabled = true;
+            document.getElementById('migrations').innerHTML = '';
+            document.getElementById('verification').style.display = 'none';
+            
+            // Extract project ref from URL
+            const projectRef = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
+            
+            if (!projectRef) {
+                alert('Invalid Supabase URL format');
+                document.getElementById('runButton').disabled = false;
+                return;
+            }
+
+            // Create migration sections
+            migrations.forEach((migration, index) => {
+                const section = document.createElement('div');
+                section.className = 'migration-section';
+                section.innerHTML = `
+                    <div class="migration-header">
+                        <h2>${migration.name}</h2>
+                        <span class="status pending" id="status-${index}">pending</span>
+                    </div>
+                    <pre id="output-${index}">Waiting to run...</pre>
+                    <div class="error-box" id="error-${index}"></div>
+                `;
+                document.getElementById('migrations').appendChild(section);
+            });
+
+            // Run migrations sequentially
+            for (let i = 0; i < migrations.length; i++) {
+                await runSingleMigration(supabaseUrl, serviceKey, i);
+                updateProgress((i + 1) / migrations.length * 100);
+            }
+
+            // Run verification
+            await runVerification(supabaseUrl, serviceKey);
+            
+            document.getElementById('runButton').disabled = false;
+        }
+
+        async function runSingleMigration(supabaseUrl, serviceKey, index) {
+            const migration = migrations[index];
+            const statusEl = document.getElementById(`status-${index}`);
+            const outputEl = document.getElementById(`output-${index}`);
+            const errorEl = document.getElementById(`error-${index}`);
+
+            statusEl.className = 'status running';
+            statusEl.textContent = 'running';
+            outputEl.textContent = 'Executing migration...';
+
+            try {
+                // Note: This is a simplified example. In production, you'd want to
+                // run these through your backend API for security
+                outputEl.innerHTML = `
+                    <strong>Migration SQL:</strong>
+                    <button class="copy-button" onclick="copyToClipboard('${migration.file}')">Copy SQL</button>
+                    <div style="margin-top: 10px;">
+                        ⚠️ Please copy this SQL and run it in your Supabase SQL Editor
+                    </div>
+                `;
+                
+                statusEl.className = 'status success';
+                statusEl.textContent = 'ready to run';
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = 'error';
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+            }
+        }
+
+        async function runVerification(supabaseUrl, serviceKey) {
+            const section = document.getElementById('verification');
+            const statusEl = document.getElementById('verificationStatus');
+            const outputEl = document.getElementById('verificationOutput');
+
+            section.style.display = 'block';
+            statusEl.className = 'status running';
+            statusEl.textContent = 'running';
+
+            const verificationSQL = `
+-- Check all tables exist
+SELECT table_name 
+FROM information_schema.tables 
+WHERE table_schema = 'public' 
+ORDER BY table_name;
+
+-- Check user count and stats
+SELECT 
+    COUNT(*) as total_users,
+    COUNT(CASE WHEN email_verified THEN 1 END) as verified_users,
+    COUNT(CASE WHEN user_type = 'pilot' THEN 1 END) as pilot_users
+FROM public.users;
+
+-- Check indexes
+SELECT 
+    tablename,
+    indexname
+FROM pg_indexes
+WHERE schemaname = 'public'
+ORDER BY tablename, indexname
+LIMIT 20;`;
+
+            outputEl.textContent = verificationSQL;
+            statusEl.className = 'status success';
+            statusEl.textContent = 'ready to verify';
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+
+        function copyToClipboard(filename) {
+            alert(`Please copy the SQL from the file: supabase/migrations/${filename}`);
+        }
+    </script>
+</body>
+</html>

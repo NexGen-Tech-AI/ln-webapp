@@ -75,14 +75,14 @@ export default function DisasterChecklist() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Progress Overview */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="glassmorphic-card p-6"
         >
-          <h3 className="text-lg font-semibold mb-4">Overall Readiness</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Overall Readiness</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Documents Protected</span>
@@ -100,7 +100,7 @@ export default function DisasterChecklist() {
           transition={{ delay: 0.1 }}
           className="glassmorphic-card p-6"
         >
-          <h3 className="text-lg font-semibold mb-4">Critical Risk Level</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Critical Risk Level</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Critical Items At Risk</span>
@@ -132,14 +132,14 @@ export default function DisasterChecklist() {
             <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <h4 className="font-semibold text-orange-500 mb-1">Critical Documents Missing!</h4>
-              <p className="text-sm text-muted-foreground mb-2">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                 These documents are essential for FEMA claims and disaster recovery:
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1 sm:gap-2">
                 {uncheckedCritical.map(item => (
                   <span
                     key={item.id}
-                    className="text-xs px-2 py-1 bg-orange-500/20 rounded-full cursor-pointer hover:bg-orange-500/30"
+                    className="text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-500/20 rounded-full cursor-pointer hover:bg-orange-500/30"
                     onClick={() => toggleItem(item.id)}
                   >
                     {item.label}
@@ -168,7 +168,7 @@ export default function DisasterChecklist() {
               </span>
             </h3>
             
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {category.items.map((item, itemIndex) => (
                 <motion.div
                   key={item.id}

@@ -55,7 +55,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 pt-24 pb-12 flex items-center justify-center min-h-screen">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-8 sm:pb-12 flex items-center justify-center min-h-screen">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -63,12 +63,12 @@ export default function LoginPage() {
         className="w-full max-w-md"
       >
         <Card className="glassmorphic-card">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your LifeNavigator account</CardDescription>
+          <CardHeader className="text-center px-4 sm:px-6">
+            <CardTitle className="text-2xl sm:text-3xl font-bold">Welcome Back</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Sign in to your LifeNavigator account</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="px-4 sm:px-6">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -79,7 +79,7 @@ export default function LoginPage() {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 min-h-[44px] text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 min-h-[44px] text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -103,7 +103,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-primary-gradient"
+                className="w-full bg-primary-gradient min-h-[44px] text-sm sm:text-base"
                 disabled={loading}
               >
                 {loading ? (
@@ -117,14 +117,14 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
+            <div className="mt-4 sm:mt-6 text-center space-y-2">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Don't have an account?{' '}
                 <Link href="/signup" className="text-primary hover:underline">
                   Join the waitlist
                 </Link>
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 <Link href="/forgot-password" className="text-primary hover:underline">
                   Forgot your password?
                 </Link>

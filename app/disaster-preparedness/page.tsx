@@ -51,8 +51,8 @@ export default function DisasterPreparednessPage() {
       <section className="relative min-h-screen flex items-center justify-center">
         <ParticleBackground />
         
-        {/* Split Screen Background */}
-        <div className="absolute inset-0 flex">
+        {/* Split Screen Background - Hidden on mobile */}
+        <div className="absolute inset-0 hidden md:flex">
           <div className="w-1/2 relative overflow-hidden">
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -67,32 +67,35 @@ export default function DisasterPreparednessPage() {
             <div className="absolute inset-0 bg-gradient-to-l from-primary/10 to-transparent" />
           </div>
         </div>
+        
+        {/* Mobile Background */}
+        <div className="absolute inset-0 md:hidden bg-gradient-to-b from-primary/10 via-background to-orange-500/10" />
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-20 mt-20">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 mt-16 sm:mt-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              When You Have <span className="text-orange-500">Minutes</span> to Evacuate,<br />
-              Your Life's Documents Are <span className="text-primary">Already Safe</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+              When You Have <span className="text-orange-500">Minutes</span> to Evacuate,<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>Your Life's Documents Are <span className="text-primary">Already Safe</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 px-4 sm:px-0">
               Join thousands protecting their vital documents before disaster strikes
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 px-4 sm:px-0">
               <button
-                className="bg-primary-gradient text-primary-foreground text-lg px-8 py-6 rounded-md hover:opacity-90 transition-opacity"
+                className="bg-primary-gradient text-primary-foreground text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 rounded-md hover:opacity-90 transition-opacity min-h-[44px]"
                 onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 Secure Your Documents Now
               </button>
               <button
-                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground text-lg px-8 py-6 rounded-md transition-colors"
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 rounded-md transition-colors min-h-[44px]"
                 onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 See How It Works
@@ -104,18 +107,18 @@ export default function DisasterPreparednessPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="inline-block"
+              className="inline-block w-full sm:w-auto px-4 sm:px-0"
             >
-              <div className="bg-background/50 backdrop-blur-md border border-border rounded-lg p-6">
-                <p className="text-sm text-muted-foreground mb-2">Documents Protected</p>
-                <p className="text-4xl font-bold gradient-text">
+              <div className="bg-background/50 backdrop-blur-md border border-border rounded-lg p-4 sm:p-6">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">Documents Protected</p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text">
                   {documentsProtected.toLocaleString()}
                 </p>
               </div>
             </motion.div>
 
             {/* Trust Badges */}
-            <div className="flex flex-wrap justify-center gap-6 mt-12">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mt-8 sm:mt-12 px-4 sm:px-0">
               {[
                 { icon: Lock, text: 'Military-Grade Encryption' },
                 { icon: Globe, text: 'Accessible Anywhere' },
@@ -126,10 +129,10 @@ export default function DisasterPreparednessPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7 + index * 0.1 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-background/50 backdrop-blur-sm border border-border rounded-full"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-background/50 backdrop-blur-sm border border-border rounded-full"
                 >
-                  <badge.icon className="w-4 h-4 text-primary" />
-                  <span className="text-sm">{badge.text}</span>
+                  <badge.icon className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
+                  <span className="text-xs sm:text-sm whitespace-nowrap">{badge.text}</span>
                 </motion.div>
               ))}
             </div>
@@ -147,38 +150,38 @@ export default function DisasterPreparednessPage() {
       </section>
 
       {/* Timeline Section */}
-      <section className="py-20 relative">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20 relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4">
               20 Minutes. That's All They Had.
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-4 sm:px-0">
               The Paradise Camp Fire timeline that changed everything
             </p>
           </motion.div>
           
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-x-auto">
             <TimelineVisualization />
           </div>
         </div>
       </section>
 
       {/* Interactive Checklist */}
-      <section className="py-20 bg-muted/20">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20 bg-muted/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               Are You Disaster Ready?
             </h2>
           </motion.div>
@@ -188,18 +191,18 @@ export default function DisasterPreparednessPage() {
       </section>
 
       {/* How LifeNavigator Protects You */}
-      <section id="how-it-works" className="py-20">
-        <div className="container mx-auto px-4">
+      <section id="how-it-works" className="py-12 sm:py-16 md:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               Your Digital Fortress
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-4 sm:px-0">
               Six layers of protection between your documents and disaster
             </p>
           </motion.div>
@@ -210,18 +213,18 @@ export default function DisasterPreparednessPage() {
 
 
       {/* Disaster Type Selector */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               Prepared for Any Emergency
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-4 sm:px-0">
               Click each disaster type to see specific document needs
             </p>
           </motion.div>
@@ -231,15 +234,15 @@ export default function DisasterPreparednessPage() {
       </section>
 
       {/* Peace of Mind Calculator */}
-      <section className="py-20 bg-muted/20">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20 bg-muted/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               What's Your Peace of Mind Worth?
             </h2>
           </motion.div>
@@ -249,15 +252,15 @@ export default function DisasterPreparednessPage() {
       </section>
 
       {/* Quick Start Guide */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 md:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               Disaster-Proof Your Life in 10 Minutes
             </h2>
           </motion.div>
@@ -267,51 +270,51 @@ export default function DisasterPreparednessPage() {
       </section>
 
       {/* Final CTA */}
-      <section id="waitlist" className="py-20 relative overflow-hidden">
+      <section id="waitlist" className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-orange-500/20" />
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
               Don't Wait for the Warning Sirens
             </h2>
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 px-4 sm:px-0">
               Join 50,000+ people who sleep better knowing they're prepared
             </p>
 
-            <div className="bg-background/50 backdrop-blur-md border border-border rounded-lg p-8 max-w-md mx-auto">
-              <form className="space-y-4">
+            <div className="bg-background/50 backdrop-blur-md border border-border rounded-lg p-4 sm:p-6 md:p-8 max-w-md mx-auto">
+              <form className="space-y-3 sm:space-y-4">
                 <input
                   type="email"
                   placeholder="your@email.com"
-                  className="w-full px-4 py-3 rounded-lg bg-background border border-input focus:border-primary focus:outline-none"
+                  className="w-full px-3 sm:px-4 py-3 rounded-lg bg-background border border-input focus:border-primary focus:outline-none text-sm sm:text-base min-h-[44px]"
                 />
-                <select className="w-full px-4 py-3 rounded-lg bg-background border border-input focus:border-primary focus:outline-none">
+                <select className="w-full px-3 sm:px-4 py-3 rounded-lg bg-background border border-input focus:border-primary focus:outline-none text-sm sm:text-base min-h-[44px]">
                   <option>Pro Navigator - $20/mo</option>
                   <option>AI Navigator+ - $99/mo</option>
                   <option>Family Navigator - $35/mo</option>
                 </select>
-                <button className="w-full bg-primary-gradient text-primary-foreground text-lg py-6 rounded-md hover:opacity-90 transition-opacity">
+                <button className="w-full bg-primary-gradient text-primary-foreground text-sm sm:text-base md:text-lg py-3 sm:py-4 md:py-6 rounded-md hover:opacity-90 transition-opacity min-h-[44px]">
                   Secure My Spot
                 </button>
               </form>
 
-              <div className="mt-6 space-y-2">
-                <p className="flex items-center justify-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="mt-4 sm:mt-6 space-y-2">
+                <p className="flex items-center justify-center gap-2 text-xs sm:text-sm">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
                   10% discount for waitlist members
                 </p>
-                <p className="flex items-center justify-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                <p className="flex items-center justify-center gap-2 text-xs sm:text-sm">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
                   Disaster Preparedness Guide (free)
                 </p>
-                <p className="flex items-center justify-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                <p className="flex items-center justify-center gap-2 text-xs sm:text-sm">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
                   Priority access when we launch
                 </p>
               </div>

@@ -111,4 +111,219 @@
       animation: meteor linear infinite;
       animation-duration: 2s;
     }
+
+/* Import responsive fixes */
+@import './styles/responsive-fixes.css';
+
+/* Global Responsive Utilities */
+
+/* Mobile-First Responsive Design System */
+@layer utilities {
+  /* Text size utilities for responsive design */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl md:text-3xl;
+  }
+  
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl md:text-4xl;
+  }
+  
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl md:text-5xl;
+  }
+  
+  .text-responsive-4xl {
+    @apply text-4xl sm:text-5xl md:text-6xl;
+  }
+  
+  .text-responsive-5xl {
+    @apply text-5xl sm:text-6xl md:text-7xl;
+  }
+
+  /* Responsive padding utilities */
+  .p-responsive {
+    @apply p-4 sm:p-6 md:p-8;
+  }
+  
+  .px-responsive {
+    @apply px-4 sm:px-6 md:px-8;
+  }
+  
+  .py-responsive {
+    @apply py-4 sm:py-6 md:py-8;
+  }
+
+  /* Responsive margin utilities */
+  .m-responsive {
+    @apply m-4 sm:m-6 md:m-8;
+  }
+  
+  .mx-responsive {
+    @apply mx-4 sm:mx-6 md:mx-8;
+  }
+  
+  .my-responsive {
+    @apply my-4 sm:my-6 md:my-8;
+  }
+
+  /* Responsive gap utilities */
+  .gap-responsive {
+    @apply gap-4 sm:gap-6 md:gap-8;
+  }
+
+  /* Responsive grid columns */
+  .grid-responsive-1 {
+    @apply grid-cols-1;
+  }
+  
+  .grid-responsive-2 {
+    @apply grid-cols-1 sm:grid-cols-2;
+  }
+  
+  .grid-responsive-3 {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .grid-responsive-4 {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  /* Hide scrollbar on mobile for horizontal scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Touch-friendly button sizes */
+  .btn-touch {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Safe area padding for mobile devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Responsive table wrapper */
+.table-responsive {
+  @apply w-full overflow-x-auto;
+}
+
+.table-responsive table {
+  @apply min-w-full;
+}
+
+/* Mobile menu animation */
+.mobile-menu-enter {
+  @apply transform opacity-0 scale-95;
+}
+
+.mobile-menu-enter-active {
+  @apply transform opacity-100 scale-100 transition duration-200 ease-out;
+}
+
+.mobile-menu-exit {
+  @apply transform opacity-100 scale-100;
+}
+
+.mobile-menu-exit-active {
+  @apply transform opacity-0 scale-95 transition duration-150 ease-in;
+}
+
+/* Responsive container with better mobile padding */
+.container-responsive {
+  @apply container mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Responsive card padding */
+.card-responsive {
+  @apply p-4 sm:p-6;
+}
+
+/* Responsive modal sizing */
+.modal-responsive {
+  @apply w-full max-w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-4;
+}
+
+/* Responsive form layouts */
+.form-responsive {
+  @apply space-y-4 sm:space-y-6;
+}
+
+.form-grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+}
+
+/* Mobile-optimized touch targets */
+@media (max-width: 768px) {
+  /* Increase touch target size on mobile */
+  button, a, [role="button"] {
+    @apply min-h-[44px];
+  }
+  
+  /* Better spacing for mobile */
+  .mobile-spacing {
+    @apply space-y-4;
+  }
+  
+  /* Stack elements on mobile */
+  .mobile-stack {
+    @apply flex flex-col space-y-4;
+  }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tablet-cols-2 {
+    @apply grid-cols-2;
+  }
+  
+  .tablet-px-12 {
+    @apply px-12;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    @apply hidden;
+  }
+  
+  .print-break {
+    page-break-after: always;
+  }
+}
   

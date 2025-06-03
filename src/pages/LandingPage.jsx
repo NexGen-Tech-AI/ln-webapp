@@ -114,7 +114,7 @@ import { useRouter } from 'next/navigation';
               initial={{ opacity:0, y: 20 }}
               animate={{ opacity:1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-5xl md:text-7xl font-extrabold mb-4"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4"
             >
               Build the <span className="gradient-text">Life You Want</span>
             </motion.h1>
@@ -122,7 +122,7 @@ import { useRouter } from 'next/navigation';
               initial={{ opacity:0, y: 20 }}
               animate={{ opacity:1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10"
+              className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 px-4"
             >
               Manage wealth, health, career, and growth in one intelligent platform.
             </motion.p>
@@ -151,8 +151,8 @@ import { useRouter } from 'next/navigation';
 
           {/* Feature Domains Section */}
           <section id="domains-section" className="py-16 md:py-24">
-            <h2 className="text-4xl font-bold text-center mb-4">Navigate Every Aspect of Your Life</h2>
-            <p className="text-xl text-muted-foreground text-center mb-16 max-w-2xl mx-auto">LifeNavigator integrates all critical domains for holistic success and empire building.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4 px-4">Navigate Every Aspect of Your Life</h2>
+            <p className="text-lg sm:text-xl text-muted-foreground text-center mb-16 max-w-2xl mx-auto px-4">LifeNavigator integrates all critical domains for holistic success and empire building.</p>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featureDomains.map((domain, index) => (
                 <motion.div
@@ -175,7 +175,7 @@ import { useRouter } from 'next/navigation';
 
           {/* Benefits Section */}
           <section id="benefits-section" className="py-16 md:py-24">
-            <h2 className="text-4xl font-bold text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16 px-4">
               Why Join the <span className="gradient-text">Waitlist?</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -214,10 +214,10 @@ import { useRouter } from 'next/navigation';
               viewport={{ once: true }}
               className="glassmorphic-card max-w-3xl mx-auto p-8 md:p-12 rounded-xl"
             >
-              <h2 className="text-4xl font-bold mb-6">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-6">
                 Ready to Navigate Your <span className="gradient-text">Empire?</span>
               </h2>
-              <p className="text-xl text-muted-foreground mb-10">
+              <p className="text-lg sm:text-xl text-muted-foreground mb-10">
                 Don't miss out on exclusive benefits. Join the LifeNavigator waitlist today and be the first to revolutionize how you manage your entire life.
               </p>
               <ParticleButton onClick={() => router.push('/signup')}>
