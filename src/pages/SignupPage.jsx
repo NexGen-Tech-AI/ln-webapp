@@ -102,6 +102,11 @@ import { useRouter } from 'next/navigation';
 
       const nextStep = () => {
         if (validateStep()) {
+          // Track form step progression
+          if (window.analytics) {
+            window.analytics.trackFormStep(step + 1);
+          }
+          
           if (step < totalSteps) {
             setStep((prev) => prev + 1);
           } else {
@@ -122,6 +127,12 @@ import { useRouter } from 'next/navigation';
         const result = await signup(formData);
         
         if (result.success) {
+          // Track successful signup conversion
+          if (window.analytics) {
+            window.analytics.trackFormComplete();
+            window.analytics.trackConversion('signup');
+          }
+          
           toast({
             title: 'Welcome to the LifeNavigator Waitlist! 🧭',
             description: `You're all set, ${formData.name}! Get ready to navigate your empire.`,
@@ -130,6 +141,11 @@ import { useRouter } from 'next/navigation';
           });
           router.push('/dashboard');
         } else {
+          // Track form abandonment
+          if (window.analytics) {
+            window.analytics.trackFormAbandon(step, result.error);
+          }
+          
           toast({
             title: 'Signup failed',
             description: result.error || 'An error occurred. Please try again.',
