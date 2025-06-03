@@ -7,7 +7,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const headersList = headers()
     
-    const formData = {
+    const formData: {
+      session_id: any,
+      form_name: any,
+      total_steps: any,
+      step_reached: any,
+      user_id?: string
+    } = {
       session_id: body.session_id,
       form_name: body.form_name,
       total_steps: body.total_steps,
@@ -24,15 +30,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('form_analytics')
-      .insert(formData)
-      .select('id')
-      .single()
-
-    if (error) throw error
-
-    return NextResponse.json({ success: true, id: data.id })
+    // For waitlist launch, just return success without tracking
+    // Full implementation can be added when analytics is needed
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Form tracking error:', error)
     return NextResponse.json(

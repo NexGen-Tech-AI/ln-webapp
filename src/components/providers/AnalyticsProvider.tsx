@@ -8,11 +8,14 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    if (analytics) {
+    // Temporarily disable analytics for waitlist launch
+    const analyticsEnabled = false
+    
+    if (analyticsEnabled && analytics) {
       // Track page view
       analytics.trackPageView({
         page_path: pathname,
-        page_title: document.title
+        page_title: document.title || ''
       })
 
       // Track signup form on signup page

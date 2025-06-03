@@ -30,22 +30,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('page_views')
-      .insert(pageViewData)
-      .select('id')
-      .single()
-
-    if (error) throw error
-
-    // Update session page count
-    await supabaseAdmin.rpc('increment', {
-      table_name: 'user_sessions',
-      column_name: 'page_count',
-      row_id: body.session_id
-    })
-
-    return NextResponse.json({ success: true, id: data.id })
+    // For waitlist launch, just return success without tracking
+    // Full implementation can be added when analytics is needed
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Page view tracking error:', error)
     return NextResponse.json(

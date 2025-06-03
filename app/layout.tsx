@@ -1,4 +1,4 @@
-import '@/index.css'
+import '../src/index.css'
 import { Inter } from 'next/font/google'
 import { ClientProviders } from '@/components/providers/ClientProviders'
 import Navbar from '@/components/shared/Navbar'

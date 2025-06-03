@@ -352,7 +352,7 @@ export class EmailTemplateService {
   async sendWelcomeEmail(to: string, name: string, verificationUrl: string) {
     try {
       const { data, error } = await resend.emails.send({
-        from: 'LifeNav <welcome@lifenav.ai>',
+        from: 'LifeNav <onboarding@resend.dev>',
         to,
         subject: 'Welcome to LifeNav! 🚀',
         html: welcomeEmailTemplate(name, verificationUrl),
@@ -381,7 +381,7 @@ export class EmailTemplateService {
   ) {
     try {
       const { data, error } = await resend.emails.send({
-        from: 'LifeNav Updates <updates@lifenav.ai>',
+        from: 'LifeNav Updates <updates@resend.dev>',
         to,
         subject: title,
         html: updateEmailTemplate(
@@ -417,7 +417,7 @@ export class EmailTemplateService {
   ) {
     try {
       const { data, error } = await resend.emails.send({
-        from: 'LifeNav <digest@lifenav.ai>',
+        from: 'LifeNav <digest@resend.dev>',
         to,
         subject: `${userName}, your weekly LifeNav update 📊`,
         html: weeklyDigestTemplate(userName, stats),
