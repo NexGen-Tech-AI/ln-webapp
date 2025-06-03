@@ -8,7 +8,7 @@
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
   [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-  [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+  [![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](LICENSE)
   
   **The Ultimate Platform for Empire Builders**
   
@@ -481,7 +481,13 @@ We welcome contributions from the community! Please see our [Contributing Guide]
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This is proprietary software owned by NexGen Tech AI. All rights reserved.
+
+This software is confidential and proprietary information of NexGen Tech AI. No part of this software may be reproduced, stored, transmitted, or used without prior written permission from NexGen Tech AI.
+
+For licensing inquiries, please contact: legal@nexgen-tech-ai.com
+
+See the [LICENSE](LICENSE) file for full details.
 
 ---
 
