@@ -65,11 +65,38 @@ export async function POST(request: NextRequest) {
         // The trigger should have created the basic record
       }
 
-      // Increment referral count if referral code was used
+      // Handle referral tracking if referral code was used
       if (validatedData.referralCode) {
-        await supabaseAdmin.rpc('increment_referral_count', { 
-          referral_code: validatedData.referralCode 
-        })
+        // Get referrer's user ID
+        const { data: referrer } = await supabaseAdmin
+          .from('users')
+          .select('id')
+          .eq('referral_code', validatedData.referralCode)
+          .single()
+        
+        if (referrer) {
+          // Create referral tracking entry
+          const { error: trackingError } = await supabaseAdmin
+            .from('referral_tracking')
+            .insert({
+              referrer_id: referrer.id,
+              referred_id: authData.user.id,
+              subscription_tier: validatedData.tierPreference,
+              // If they selected a paid tier, track the potential revenue
+              subscription_amount: validatedData.tierPreference === 'pro' ? 20 : 
+                                 validatedData.tierPreference === 'ai' ? 99 : 
+                                 validatedData.tierPreference === 'family' ? 35 : 0
+            })
+          
+          if (trackingError) {
+            console.error('Referral tracking error:', trackingError)
+          }
+          
+          // Increment referral count
+          await supabaseAdmin.rpc('increment_referral_count', { 
+            referral_code: validatedData.referralCode 
+          })
+        }
       }
 
       // Log the signup

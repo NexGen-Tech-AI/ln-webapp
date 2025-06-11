@@ -365,7 +365,27 @@ class AnalyticsTracker {
 }
 
 // Export singleton instance
-export const analytics = typeof window !== 'undefined' ? new AnalyticsTracker() : null
+// Lazy initialization to prevent blocking
+let analyticsInstance: AnalyticsTracker | null = null
+
+export const analytics = {
+  get instance() {
+    if (typeof window === 'undefined') return null
+    if (!analyticsInstance) {
+      analyticsInstance = new AnalyticsTracker()
+    }
+    return analyticsInstance
+  },
+  // Proxy methods to the instance
+  trackPageView: (page: string, referrer?: string) => analytics.instance?.trackPageView(page, referrer),
+  trackEvent: (event: AnalyticsEvent) => analytics.instance?.trackEvent(event),
+  trackFormStart: (formId: string, formName?: string) => analytics.instance?.trackFormStart(formId, formName),
+  trackFormStep: (formId: string, step: number, stepName?: string) => analytics.instance?.trackFormStep(formId, step, stepName),
+  trackFormComplete: (formId: string) => analytics.instance?.trackFormComplete(formId),
+  trackFormAbandon: (formId: string) => analytics.instance?.trackFormAbandon(formId),
+  trackClick: (element: string, properties?: Record<string, any>) => analytics.instance?.trackClick(element, properties),
+  updatePageDuration: () => analytics.instance?.updatePageDuration(),
+}
 
 // Make analytics available globally
 if (typeof window !== 'undefined') {

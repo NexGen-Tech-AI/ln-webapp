@@ -4,6 +4,13 @@
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
+    
+    /* Ensure body has proper styles */
+    @layer base {
+      body {
+        @apply bg-background text-foreground;
+      }
+    }
 
     @layer base {
       :root {

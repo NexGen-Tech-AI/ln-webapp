@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
     import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
     import { CheckCircle, Users, Gift, TrendingUp, Zap, MessageSquare, DollarSign, Briefcase, Heart, BookOpen, ShieldCheck, Calculator, Building, Brain } from 'lucide-react';
     import ParticleButton from '@/components/shared/ParticleButton';
-    import { supabase } from '@/lib/supabase';
+    import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
     const AnimatedCounter = ({ targetValue, duration = 2000 }) => {
       const [count, setCount] = useState(0);
@@ -51,12 +51,20 @@ import { useRouter } from 'next/navigation';
 
       useEffect(() => {
         const fetchUserCount = async () => {
-          const { count, error } = await supabase
-            .from('users')
-            .select('*', { count: 'exact', head: true });
-          
-          if (!error && count) {
-            setUserCount(100 + count);
+          try {
+            // Only fetch if Supabase is configured
+            if (isSupabaseConfigured) {
+              const { count, error } = await supabase
+                .from('users')
+                .select('*', { count: 'exact', head: true });
+              
+              if (!error && count) {
+                setUserCount(100 + count);
+              }
+            }
+          } catch (err) {
+            console.error('Error fetching user count:', err);
+            // Continue with default count
           }
         };
 

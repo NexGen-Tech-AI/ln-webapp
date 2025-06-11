@@ -12,7 +12,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         {children}
       </AnalyticsProvider>
       <Toaster />
-      <DemoNotice />
+      {/* <DemoNotice /> */}
     </AuthProvider>
   )
 }

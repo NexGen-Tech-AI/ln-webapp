@@ -22,12 +22,28 @@ interface ReferralCredit {
 }
 
 interface ReferralStats {
-  acknowledged: number
-  paying: number
-  uncredited_paying: number
-  required: number
-  progress: string
-  next_credit_in: number
+  totalReferrals: number
+  payingReferrals: number
+  waitlistReferrals: number
+  potentialPayingUsers: number
+  potentialRevenue: number
+  tierBreakdown: {
+    free: number
+    pro: number
+    ai: number
+    family: number
+  }
+  rewards: {
+    requiredReferrals: number
+    currentBatch: number
+    progressToNextReward: number
+    completedBatches: number
+    averageSubscriptionValue: number
+    projectedRewardTier: string
+    projectedRewardValue: number
+    nextBatchAverageValue: number
+    nextBatchProjectedTier: string
+  }
 }
 
 export function ReferralTracker({ user }: { user: any }) {
@@ -43,12 +59,23 @@ export function ReferralTracker({ user }: { user: any }) {
 
   const fetchReferralData = async () => {
     try {
-      // Fetch referral credits and stats
-      const response = await fetch('/api/referral/credits')
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data.stats)
-        setCredits(data.credits)
+      // Fetch referral statistics
+      const token = localStorage.getItem('supabase.auth.token')
+      const statsResponse = await fetch('/api/user/referral', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (statsResponse.ok) {
+        const data = await statsResponse.json()
+        setStats(data.statistics)
+      }
+
+      // Fetch referral credits
+      const creditsResponse = await fetch('/api/referral/credits')
+      if (creditsResponse.ok) {
+        const data = await creditsResponse.json()
+        setCredits(data.credits || [])
       }
 
       // Check for service discount
@@ -112,8 +139,15 @@ export function ReferralTracker({ user }: { user: any }) {
     : user.user_type === 'waitlist' ? 'Early Waitlist' 
     : 'Member'
 
-  const requiredForBenefit = stats?.required || 20
-  const progressPercentage = stats ? (stats.paying / requiredForBenefit) * 100 : 0
+  const getTierDisplay = (tier: string) => {
+    const tierInfo = {
+      free: { name: 'Free', price: '$0', color: 'text-gray-500' },
+      pro: { name: 'Pro Navigator', price: '$20', color: 'text-blue-500' },
+      family: { name: 'Family Navigator', price: '$35', color: 'text-purple-500' },
+      ai: { name: 'AI Navigator+', price: '$99', color: 'text-green-500' }
+    }
+    return tierInfo[tier as keyof typeof tierInfo] || tierInfo.free
+  }
 
   return (
     <div className="space-y-6">
@@ -140,36 +174,118 @@ export function ReferralTracker({ user }: { user: any }) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="text-center p-4 rounded-lg bg-secondary/20">
               <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <div className="text-2xl font-bold">{stats?.acknowledged || 0}</div>
+              <div className="text-2xl font-bold">{stats?.totalReferrals || 0}</div>
               <p className="text-sm text-muted-foreground">Total Referrals</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <Clock className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+              <div className="text-2xl font-bold text-blue-500">{stats?.waitlistReferrals || 0}</div>
+              <p className="text-sm text-muted-foreground">Waitlist Referrals</p>
             </div>
             <div className="text-center p-4 rounded-lg bg-green-500/10 border border-green-500/20">
               <DollarSign className="h-8 w-8 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold text-green-500">{stats?.paying || 0}</div>
+              <div className="text-2xl font-bold text-green-500">{stats?.payingReferrals || 0}</div>
               <p className="text-sm text-muted-foreground">Paying Customers</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-primary/10">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <div className="text-2xl font-bold gradient-text">{stats?.next_credit_in || requiredForBenefit}</div>
-              <p className="text-sm text-muted-foreground">Until Next Reward</p>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-sm font-medium">
-                Progress to Next Reward
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {stats?.paying || 0} / {requiredForBenefit} paying referrals
-              </span>
+          {/* Potential Revenue Section */}
+          {stats && stats.potentialPayingUsers > 0 && (
+            <div className="p-4 rounded-lg bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-purple-500" />
+                Potential Revenue When App Launches
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Potential Paying Users</p>
+                  <p className="text-xl font-bold text-purple-500">{stats.potentialPayingUsers}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Potential Monthly Revenue</p>
+                  <p className="text-xl font-bold text-green-500">${stats.potentialRevenue}/mo</p>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-border/50">
+                <p className="text-sm text-muted-foreground mb-2">Tier Preferences:</p>
+                <div className="flex gap-2 flex-wrap">
+                  {stats.tierBreakdown.pro > 0 && (
+                    <Badge variant="outline" className="text-xs">Pro: {stats.tierBreakdown.pro}</Badge>
+                  )}
+                  {stats.tierBreakdown.ai > 0 && (
+                    <Badge variant="outline" className="text-xs">AI+: {stats.tierBreakdown.ai}</Badge>
+                  )}
+                  {stats.tierBreakdown.family > 0 && (
+                    <Badge variant="outline" className="text-xs">Family: {stats.tierBreakdown.family}</Badge>
+                  )}
+                  {stats.tierBreakdown.free > 0 && (
+                    <Badge variant="outline" className="text-xs">Free: {stats.tierBreakdown.free}</Badge>
+                  )}
+                </div>
+              </div>
             </div>
-            <Progress value={progressPercentage} className="h-3" />
-            <p className="text-xs text-muted-foreground mt-2">
-              As a {userTypeLabel}, you need {requiredForBenefit} paying referrals for a free month
-            </p>
-          </div>
+          )}
+
+          {/* Progress Bar */}
+          {stats && (
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium">
+                    Progress to Next Free Month
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {stats.rewards.currentBatch} / {stats.rewards.requiredReferrals} paying referrals
+                  </span>
+                </div>
+                <Progress value={stats.rewards.progressToNextReward} className="h-3" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  As a {userTypeLabel}, you need {stats.rewards.requiredReferrals} paying referrals for each free month
+                </p>
+              </div>
+              
+              {/* Reward Tier Information */}
+              {stats.rewards.currentBatch > 0 && (
+                <div className="p-4 rounded-lg bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Award className="h-5 w-5 text-indigo-500" />
+                    Your Next Free Month Reward
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Based on Average Tier</p>
+                      <p className={`text-lg font-bold ${getTierDisplay(stats.rewards.nextBatchProjectedTier).color}`}>
+                        {getTierDisplay(stats.rewards.nextBatchProjectedTier).name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Worth {getTierDisplay(stats.rewards.nextBatchProjectedTier).price}/mo
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Average Value</p>
+                      <p className="text-lg font-bold text-green-500">
+                        ${stats.rewards.nextBatchAverageValue.toFixed(2)}/mo
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        From current batch
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Completed Batches */}
+              {stats.rewards.completedBatches > 0 && (
+                <Alert className="border-green-500/50 bg-green-500/5">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <AlertDescription>
+                    <strong>Congratulations!</strong> You've earned {stats.rewards.completedBatches} free month{stats.rewards.completedBatches > 1 ? 's' : ''} 
+                    with an average tier value of ${stats.rewards.averageSubscriptionValue.toFixed(2)}/mo
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
 
           {/* Referral Link */}
           <div className="space-y-3">
@@ -199,14 +315,17 @@ export function ReferralTracker({ user }: { user: any }) {
           </div>
 
           {/* Reward Structure */}
-          <Alert className="border-primary/50 bg-primary/5">
-            <Award className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Your Reward Structure:</strong><br/>
-              Every {requiredForBenefit} paying referrals = 1 month free (average tier value)<br/>
-              Every {requiredForBenefit * 2} paying referrals = 1 month free at next tier up!
-            </AlertDescription>
-          </Alert>
+          {stats && (
+            <Alert className="border-primary/50 bg-primary/5">
+              <Award className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Your Reward Structure:</strong><br/>
+                Every {stats.rewards.requiredReferrals} paying referrals = 1 month free<br/>
+                Your reward tier is based on the average subscription value of your referrals<br/>
+                Higher tier referrals = Higher tier rewards!
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
