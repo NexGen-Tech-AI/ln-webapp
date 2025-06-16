@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     // Get user's referral code and detailed statistics
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('referral_code, referral_count, paying_referral_count')
+      .select('referral_code, referral_count, paying_referral_count, user_type')
       .eq('id', user.id)
       .single()
 
@@ -55,13 +55,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate statistics
-    const requiredReferrals = userData.user_type === 'pilot' ? 5 : 
-                             userData.user_type === 'waitlist' ? 10 : 20
+    const requiredReferrals = userData?.user_type === 'pilot' ? 5 : 
+                             userData?.user_type === 'waitlist' ? 10 : 20
     
     const stats = {
       totalReferrals: userData.referral_count || 0,
       payingReferrals: userData.paying_referral_count || 0,
-      waitlistReferrals: referralData?.filter(r => !r.became_paying_at).length || 0,
+      waitlistReferrals: referralData?.filter((r: any) => !r.became_paying_at).length || 0,
       potentialPayingUsers: 0,
       potentialRevenue: 0,
       tierBreakdown: {

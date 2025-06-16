@@ -221,10 +221,10 @@ export function AnalyticsDashboard() {
   return (
     <div className="space-y-6">
       {/* Controls */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -234,7 +234,7 @@ export function AnalyticsDashboard() {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={exportData} variant="outline">
+        <Button onClick={exportData} variant="outline" className="w-full sm:w-auto">
           <Download className="h-4 w-4 mr-2" />
           Export Data
         </Button>

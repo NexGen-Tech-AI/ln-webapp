@@ -1,29 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    )
+    // Get auth token from header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const token = authHeader.substring(7)
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token)
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get user's active credits
-    const { data: credits, error: creditsError } = await supabase
+    const { data: credits, error: creditsError } = await supabaseAdmin
       .from('referral_credits')
       .select('*')
       .eq('user_id', user.id)
@@ -37,19 +30,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Get referral tracking stats
-    const { data: trackingStats } = await supabase
+    const { data: trackingStats } = await supabaseAdmin
       .from('referral_tracking')
       .select('id, became_paying_at, subscription_amount')
       .eq('referrer_id', user.id)
 
     const acknowledgedCount = trackingStats?.length || 0
-    const payingCount = trackingStats?.filter(r => r.became_paying_at)?.length || 0
-    const uncreditedPayingCount = trackingStats?.filter(r => 
-      r.became_paying_at && !r.included_in_credit_batch
-    )?.length || 0
+    const payingCount = trackingStats?.filter((r: any) => r.became_paying_at)?.length || 0
+    const uncreditedPayingCount = 0 // TODO: implement credit batch tracking
 
     // Get user type to determine requirements
-    const { data: userData } = await supabase
+    const { data: userData } = await supabaseAdmin
       .from('users')
       .select('user_type')
       .eq('id', user.id)
@@ -78,25 +69,20 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
+    // Get auth token from header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const token = authHeader.substring(7)
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token)
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check eligibility for credit
-    const { data: eligibility, error: eligibilityError } = await supabase
+    const { data: eligibility, error: eligibilityError } = await supabaseAdmin
       .rpc('check_referral_credit_eligibility', { p_user_id: user.id })
 
     if (eligibilityError) {
@@ -115,7 +101,7 @@ export async function POST(request: NextRequest) {
     const referralIds = eligibility.eligible_referrals.map((r: any) => r.id)
 
     // Create the credit
-    const { data: creditId, error: creditError } = await supabase
+    const { data: creditId, error: creditError } = await supabaseAdmin
       .rpc('create_referral_credit', {
         p_user_id: user.id,
         p_referral_ids: referralIds
@@ -127,7 +113,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the created credit details
-    const { data: credit } = await supabase
+    const { data: credit } = await supabaseAdmin
       .from('referral_credits')
       .select('*')
       .eq('id', creditId)

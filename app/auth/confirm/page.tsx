@@ -18,9 +18,9 @@ export default function EmailConfirmPage() {
     const confirmEmail = async () => {
       try {
         // Get the token from URL
-        const token = searchParams.get('token')
-        const type = searchParams.get('type')
-        const redirectTo = searchParams.get('redirectTo')
+        const token = searchParams?.get('token')
+        const type = searchParams?.get('type')
+        const redirectTo = searchParams?.get('redirectTo')
 
         if (!token || type !== 'email') {
           setStatus('error')

@@ -1,10 +1,7 @@
 import '../src/index.css'
-import { Inter } from 'next/font/google'
 import { ClientProviders } from '@/components/providers/ClientProviders'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'LifeNavigator - Navigate Your Empire',
@@ -18,8 +15,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>
-        <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground">
+      <body className="dark bg-background text-foreground">
+        <div className="min-h-screen flex flex-col bg-background selection:bg-primary/30 selection:text-primary-foreground">
           <ClientProviders>
             <Navbar />
             <main className="flex-grow pt-20">

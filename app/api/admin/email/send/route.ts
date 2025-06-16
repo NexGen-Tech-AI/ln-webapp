@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
                 .replace(/{position}/g, recipient.position.toString()),
               validatedData.ctaText,
               validatedData.ctaUrl,
-              validatedData.type
+              validatedData.type === 'custom' ? 'announcement' : validatedData.type
             ),
             status: 'pending',
           }))
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         {
           ctaText: validatedData.ctaText,
           ctaUrl: validatedData.ctaUrl,
-          type: validatedData.type,
+          type: validatedData.type === 'custom' ? 'announcement' : validatedData.type,
         }
       )
     )

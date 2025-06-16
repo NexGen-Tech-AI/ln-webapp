@@ -21,7 +21,7 @@ export default function DebugPage() {
   useEffect(() => {
     const checkEnvironment = async () => {
       try {
-        const info = {
+        const info: any = {
           supabaseConfigured: isSupabaseConfigured,
           authLoading: auth.isLoading,
           user: auth.user,
@@ -42,7 +42,7 @@ export default function DebugPage() {
         
         setDebugInfo(info)
       } catch (err) {
-        setDebugInfo(prev => ({ ...prev, error: err.message }))
+        setDebugInfo(prev => ({ ...prev, error: err instanceof Error ? err.message : String(err) }))
       }
     }
     

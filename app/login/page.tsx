@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/use-toast'
 import { Mail, Lock, Loader2 } from 'lucide-react'
+import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons'
+import { PrivacyPolicyLink } from '@/components/legal/PrivacyPolicyModal'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -117,6 +119,8 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            <SocialLoginButtons mode="login" className="mt-6" />
+
             <div className="mt-4 sm:mt-6 text-center space-y-2">
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Don't have an account?{' '}
@@ -127,6 +131,14 @@ export default function LoginPage() {
               <p className="text-xs sm:text-sm text-muted-foreground">
                 <Link href="/forgot-password" className="text-primary hover:underline">
                   Forgot your password?
+                </Link>
+              </p>
+              <p className="text-xs text-muted-foreground mt-4">
+                By signing in, you agree to our{' '}
+                <PrivacyPolicyLink />
+                {' '}and{' '}
+                <Link href="/terms" className="text-primary hover:underline">
+                  Terms of Service
                 </Link>
               </p>
             </div>

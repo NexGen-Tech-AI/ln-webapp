@@ -5,6 +5,27 @@ type User = Database['public']['Tables']['users']['Row']
 type PaymentMethod = Database['public']['Tables']['payment_methods']['Row']
 
 export class ApiService {
+  // OAuth provider sign in
+  async signInWithOAuth(provider: 'google' | 'azure' | 'linkedin_oidc' | 'twitter' | 'facebook') {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: provider === 'google' ? 'email profile' : 
+                  provider === 'azure' ? 'openid email profile' :
+                  undefined,
+        }
+      })
+
+      if (error) throw error
+      return { success: true, data }
+    } catch (error) {
+      console.error(`OAuth ${provider} error:`, error)
+      return { success: false, error: error instanceof Error ? error.message : String(error) }
+    }
+  }
+
   // Auth methods
   async signup(data: {
     email: string
@@ -17,8 +38,8 @@ export class ApiService {
     referralCode?: string
   }) {
     try {
-      // Use the API route for signup
-      const response = await fetch('/api/auth/signup', {
+      // Use the simplified API route for signup
+      const response = await fetch('/api/auth/signup-simple', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

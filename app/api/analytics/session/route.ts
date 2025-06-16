@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     // Try to get location from IP (you can integrate with a geolocation API)
     const location = await getLocationFromIP(ip)
 
-    const sessionData = {
+    const sessionData: any = {
       id: body.session_id,
       visitor_id: body.visitor_id,
       ip_address: ip !== 'unknown' ? ip : null,

@@ -157,17 +157,17 @@ export function UserManagement() {
     <div className="space-y-4">
       <Card className="glassmorphic-card">
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <CardTitle>User Management</CardTitle>
               <CardDescription>View and manage all users</CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={exportUsers}>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button variant="outline" onClick={exportUsers} className="w-full sm:w-auto">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button variant="outline" onClick={inviteToPilot} disabled={selectedUsers.length === 0}>
+              <Button variant="outline" onClick={inviteToPilot} disabled={selectedUsers.length === 0} className="w-full sm:w-auto">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Invite to Pilot ({selectedUsers.length})
               </Button>
@@ -176,7 +176,7 @@ export function UserManagement() {
         </CardHeader>
         <CardContent>
           {/* Filters */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -190,7 +190,7 @@ export function UserManagement() {
               </div>
             </div>
             <Select value={filterTier} onValueChange={setFilterTier}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Filter by tier" />
               </SelectTrigger>
               <SelectContent>
@@ -202,7 +202,7 @@ export function UserManagement() {
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -215,7 +215,7 @@ export function UserManagement() {
           </div>
 
           {/* Users Table */}
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -227,10 +227,10 @@ export function UserManagement() {
                   </TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>Position</TableHead>
-                  <TableHead>Tier</TableHead>
+                  <TableHead className="hidden sm:table-cell">Tier</TableHead>
                   <TableHead>Referrals</TableHead>
-                  <TableHead>Interests</TableHead>
-                  <TableHead>Joined</TableHead>
+                  <TableHead className="hidden md:table-cell">Interests</TableHead>
+                  <TableHead className="hidden lg:table-cell">Joined</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -263,7 +263,7 @@ export function UserManagement() {
                         </div>
                       </TableCell>
                       <TableCell>#{user.position}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant="outline" className="capitalize">
                           {user.tier_preference}
                         </Badge>
@@ -271,10 +271,10 @@ export function UserManagement() {
                       <TableCell>
                         <div>
                           <div>{user.referral_count}</div>
-                          <div className="text-xs text-muted-foreground">{user.referral_code}</div>
+                          <div className="text-xs text-muted-foreground hidden sm:block">{user.referral_code}</div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {user.interests.slice(0, 2).map((interest, i) => (
                             <Badge key={i} variant="secondary" className="text-xs">
@@ -288,9 +288,9 @@ export function UserManagement() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{format(new Date(user.joined_at), 'MMM d, yyyy')}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{format(new Date(user.joined_at), 'MMM d, yyyy')}</TableCell>
                       <TableCell>
-                        <Badge variant={user.email_verified ? 'default' : 'destructive'}>
+                        <Badge variant={user.email_verified ? 'default' : 'destructive'} className="text-xs sm:text-sm">
                           {user.email_verified ? 'Verified' : 'Unverified'}
                         </Badge>
                       </TableCell>

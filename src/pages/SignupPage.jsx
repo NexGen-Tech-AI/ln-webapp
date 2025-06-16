@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation';
     import { useToast } from '@/components/ui/use-toast';
     import { useAuth } from '@/contexts/AuthContext';
     import { ArrowLeft, ArrowRight, PartyPopper, DollarSign, TrendingUp, Briefcase, Target, Heart, BookOpen, ShieldCheck, Calculator, Building, Brain } from 'lucide-react';
+    import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
+    import { PrivacyPolicyLink } from '@/components/legal/PrivacyPolicyModal';
 
     const lifeDomains = [
       { id: 'financial_planning', label: '💰 Financial Planning & Wealth Building', icon: <DollarSign className="w-5 h-5 mr-2" /> },
@@ -213,6 +215,15 @@ import { useRouter } from 'next/navigation';
                     <Input id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleInputChange} placeholder="Re-enter your password" className={errors.confirmPassword ? 'border-destructive' : ''}/>
                     {errors.confirmPassword && <p className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>}
                   </div>
+                  
+                  <SocialLoginButtons mode="signup" className="mt-6" />
+                  
+                  <p className="text-center text-sm text-muted-foreground mt-4">
+                    Already have an account?{' '}
+                    <a href="/login" className="text-primary hover:underline">
+                      Sign in
+                    </a>
+                  </p>
                 </motion.div>
               )}
               {step === 2 && (
@@ -286,6 +297,17 @@ import { useRouter } from 'next/navigation';
                     <Label htmlFor="referralCode">Referral Code (Optional)</Label>
                     <Input id="referralCode" name="referralCode" value={formData.referralCode} onChange={handleInputChange} placeholder="Enter if you have one"/>
                     <p className="text-xs text-muted-foreground mt-1">Know another Navigator? Using their code gives them a boost up the waitlist!</p>
+                  </div>
+                  
+                  <div className="mt-6 p-4 bg-accent/50 rounded-lg border border-accent">
+                    <p className="text-xs text-muted-foreground text-center">
+                      By joining the waitlist, you agree to our{' '}
+                      <PrivacyPolicyLink />
+                      {' '}and{' '}
+                      <a href="/terms" className="text-primary hover:underline">
+                        Terms of Service
+                      </a>
+                    </p>
                   </div>
                 </motion.div>
               )}

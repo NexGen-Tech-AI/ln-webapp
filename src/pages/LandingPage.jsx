@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
     import { CheckCircle, Users, Gift, TrendingUp, Zap, MessageSquare, DollarSign, Briefcase, Heart, BookOpen, ShieldCheck, Calculator, Building, Brain } from 'lucide-react';
     import ParticleButton from '@/components/shared/ParticleButton';
     import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+    import { PrivacyPolicyLink } from '@/components/legal/PrivacyPolicyModal';
 
     const AnimatedCounter = ({ targetValue, duration = 2000 }) => {
       const [count, setCount] = useState(0);
@@ -154,6 +155,9 @@ import { useRouter } from 'next/navigation';
               className="mt-16"
             >
               <p className="text-lg text-muted-foreground mb-2">Join <AnimatedCounter targetValue={userCount} /> visionary builders already on the list!</p>
+              <p className="text-xs text-muted-foreground mt-4">
+                By joining the waitlist, you agree to our <PrivacyPolicyLink />
+              </p>
             </motion.div>
           </section>
 

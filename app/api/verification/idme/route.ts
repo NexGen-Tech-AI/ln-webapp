@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { cookies } from 'next/headers'
 
 // ID.me OAuth configuration
@@ -9,25 +9,20 @@ const IDME_REDIRECT_URI = process.env.NEXT_PUBLIC_APP_URL + '/api/verification/i
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    )
+    // Get auth token from header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const token = authHeader.substring(7)
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token)
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Store user ID in session for callback
+    const cookieStore = cookies()
     cookieStore.set('idme_verification_user', user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -115,18 +110,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user in database
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
-
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('users')
       .update({
         service_verified: true,

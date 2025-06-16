@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: 'Payment tracking updated successfully',
-      referralUpdated: referralData?.length > 0
+      referralUpdated: (referralData?.length || 0) > 0
     })
   } catch (error) {
     console.error('Payment tracking error:', error)

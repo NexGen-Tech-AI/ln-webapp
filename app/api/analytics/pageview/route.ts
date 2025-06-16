@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const headersList = headers()
     
-    const pageViewData = {
+    const pageViewData: any = {
       session_id: body.session_id,
       page_path: body.page_path,
       page_title: body.page_title,

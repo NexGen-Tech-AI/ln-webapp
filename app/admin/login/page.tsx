@@ -162,7 +162,7 @@ export default function AdminLoginPage() {
               </div>
 
               {error && (
-                <Alert className="border-destructive">
+                <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
