@@ -5,6 +5,6 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, Varian
 
 export function Badge(props: BadgeProps): JSX.Element
 
-export const badgeVariants: (props?: ({
+export const badgeVariants: (props?: {
     variant?: "default" | "secondary" | "destructive" | "outline" | null | undefined
 } | undefined) => string

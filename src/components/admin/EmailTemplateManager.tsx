@@ -73,7 +73,7 @@ export function EmailTemplateManager() {
     {
       id: '2',
       name: 'Milestone Celebration',
-      subject: '🎉 We've reached {milestone}!',
+      subject: '🎉 We have reached {milestone}!',
       content: `<h3>Amazing News!</h3>
 <p>Thanks to your support, we've just hit an incredible milestone: <strong>{milestone}</strong>!</p>
 <p>This wouldn't have been possible without our amazing community. As a token of our appreciation, we're {reward}.</p>
