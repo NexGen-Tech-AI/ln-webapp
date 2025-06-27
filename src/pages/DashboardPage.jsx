@@ -9,12 +9,13 @@ import { useRouter } from 'next/navigation';
     import { Input } from '@/components/ui/input';
     import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
     import { Progress } from '@/components/ui/progress';
-    import { useLocalStorage } from '@/hooks/useLocalStorage';
+    import { Badge } from '@/components/ui/badge';
     import { useToast } from '@/components/ui/use-toast';
     import { useAuth } from '@/contexts/AuthContext';
     import { supabase } from '@/lib/supabase';
     import { Users, Gift, Link as LinkIcon, Share2, Clock, Info, Newspaper, Sparkles, DollarSign, TrendingUp, Briefcase, Target, Heart, BookOpen, ShieldCheck, Calculator, Building, Brain } from 'lucide-react';
 import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
+import { DemoPreview } from '@/components/dashboard/DemoPreview';
 
     const domainIcons = {
       '💰 financial planning & wealth building': <DollarSign className="w-5 h-5 mr-2 text-primary" />,
@@ -68,9 +69,9 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
           return;
         }
         timerComponents.push(
-          <div key={interval} className="text-center glassmorphic-card p-2 sm:p-3 rounded-lg">
-            <span className="text-xl sm:text-2xl md:text-3xl font-bold gradient-text">{timeLeft[interval]}</span>
-            <span className="block text-xs uppercase text-muted-foreground">{interval}</span>
+          <div key={interval} className="text-center glassmorphic-card p-3 sm:p-4 rounded-lg">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text block">{timeLeft[interval]}</span>
+            <span className="block text-xs sm:text-sm uppercase text-muted-foreground mt-1">{interval}</span>
           </div>
         );
       });
@@ -89,7 +90,6 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
       const { user: authUser, isLoading: authLoading } = useAuth();
       const { toast } = useToast();
       const router = useRouter();
-      const [showReferralBoost, setShowReferralBoost] = useState(false);
       const [filteredUpdates, setFilteredUpdates] = useState([]);
       const [totalWaitlisted, setTotalWaitlisted] = useState(0);
 
@@ -244,8 +244,8 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
           className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-8 sm:pb-12"
         >
           <div className="mb-6 sm:mb-8 md:mb-12">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2">Welcome, Navigator <span className="gradient-text">{name}!</span></h1>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground">{getPersonalizedMessage()}</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2">Welcome, Navigator <span className="gradient-text">{name}!</span></h1>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground">{getPersonalizedMessage()}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -256,18 +256,8 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                   <Users className="h-6 w-6 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold relative">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold">
                     #{waitlistPosition.toLocaleString()}
-                    {showReferralBoost && (
-                      <motion.span 
-                        initial={{ opacity: 0, y: 0, scale:0.5 }}
-                        animate={{ opacity: [0,1,0], y: -40, scale: [0.5,1.5,0.5] }}
-                        transition={{ duration: 1.5, ease: "circOut" }}
-                        className="absolute -top-2 right-0 sm:-right-12 text-lg sm:text-xl md:text-2xl font-bold text-green-400"
-                      >
-                        -100!
-                      </motion.span>
-                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     of {totalWaitlisted.toLocaleString()} fellow Navigators
@@ -288,22 +278,44 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                 <p className="text-sm text-muted-foreground mb-2">
                   Invite others & earn rewards when they become paying customers!
                 </p>
-                <div className="flex items-center space-x-2 mb-3">
-                  <LinkIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <Input type="text" readOnly value={`${window.location.origin}/referral/${referralCode}`} className="bg-background/50 text-xs sm:text-sm p-2 truncate"/>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleShare('copy')} className="flex-1 min-h-[44px]">Copy</Button>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleShare('twitter')} className="flex-1 min-h-[44px]">
-                      <Share2 className="h-4 w-4 sm:mr-1"/>
-                      <span className="hidden sm:inline">Tweet</span>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')} className="flex-1 min-h-[44px]">
-                      <Share2 className="h-4 w-4 sm:mr-1"/>
-                      <span className="hidden sm:inline">Share</span>
-                    </Button>
+                <div className="flex flex-col space-y-2 mb-3">
+                  <div className="flex items-center space-x-2">
+                    <LinkIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-xs text-muted-foreground">Your referral link:</span>
                   </div>
+                  <Input 
+                    type="text" 
+                    readOnly 
+                    value={`${window.location.origin}/referral/${referralCode}`} 
+                    className="bg-background/50 text-xs sm:text-sm p-3 font-mono"
+                    onClick={(e) => e.target.select()}
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleShare('copy')} 
+                    className="min-h-[44px] text-xs sm:text-sm"
+                  >
+                    <LinkIcon className="h-4 w-4 sm:mr-1.5"/>
+                    <span>Copy</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleShare('twitter')} 
+                    className="min-h-[44px] text-xs sm:text-sm"
+                  >
+                    <Share2 className="h-4 w-4 sm:mr-1.5"/>
+                    <span>Tweet</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleShare('linkedin')} 
+                    className="min-h-[44px] text-xs sm:text-sm"
+                  >
+                    <Share2 className="h-4 w-4 sm:mr-1.5"/>
+                    <span>Share</span>
+                  </Button>
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">Total Referrals: <strong className="text-foreground">{referralCount}</strong></p>
                 <Link href="#referrals">
@@ -327,19 +339,22 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
             </motion.div>
           </div>
 
+          {/* Demo Preview Section */}
+          <DemoPreview />
+
           <Tabs defaultValue="updates" className="w-full">
-             <div className="overflow-x-auto mb-6">
-               <TabsList className="grid w-full min-w-[300px] grid-cols-3 md:w-3/4 lg:w-1/2 bg-slate-800/50">
-                  <TabsTrigger value="updates" className="flex items-center justify-center space-x-1 sm:space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm">
-                    <Newspaper className="w-3 h-3 sm:w-4 sm:h-4"/>
+             <div className="mb-6">
+               <TabsList className="grid w-full grid-cols-3 max-w-xl mx-auto bg-slate-800/50">
+                  <TabsTrigger value="updates" className="flex items-center justify-center gap-1.5 sm:gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm py-3">
+                    <Newspaper className="w-4 h-4"/>
                     <span>Updates</span>
                   </TabsTrigger>
-                  <TabsTrigger value="domains" className="flex items-center justify-center space-x-1 sm:space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm">
-                    <Sparkles className="w-3 h-3 sm:w-4 sm:h-4"/>
+                  <TabsTrigger value="domains" className="flex items-center justify-center gap-1.5 sm:gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm py-3">
+                    <Sparkles className="w-4 h-4"/>
                     <span>Domains</span>
                   </TabsTrigger>
-                  <TabsTrigger value="referrals" className="flex items-center justify-center space-x-1 sm:space-x-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm">
-                    <Gift className="w-3 h-3 sm:w-4 sm:h-4"/>
+                  <TabsTrigger value="referrals" className="flex items-center justify-center gap-1.5 sm:gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs sm:text-sm py-3">
+                    <Gift className="w-4 h-4"/>
                     <span>Referrals</span>
                   </TabsTrigger>
                </TabsList>
@@ -352,7 +367,7 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                   <CardTitle className="text-2xl">LifeNavigator News & Previews</CardTitle>
                   <CardDescription>The latest updates, filtered by your selected life domains.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4 sm:space-y-6 max-h-[300px] sm:max-h-[400px] md:max-h-[500px] overflow-y-auto pr-2">
+                <CardContent className="space-y-4 sm:space-y-6 max-h-[400px] sm:max-h-[500px] md:max-h-[600px] overflow-y-auto pr-2">
                   {filteredUpdates.length > 0 ? filteredUpdates.map(update => (
                     <div key={update.id} className="pb-4 border-b border-border last:border-b-0">
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1 gap-1 sm:gap-2">
@@ -385,15 +400,15 @@ import { ReferralTracker } from '@/components/dashboard/ReferralTracker';
                     const iconKey = interestLabel.toLowerCase();
                     return (
                         <div key={interestLabel} className="p-4 rounded-md border border-input bg-background/30">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center">
-                                    {domainIcons[iconKey] || <Sparkles className="w-5 h-5 mr-2 text-primary"/>}
-                                    <span className="text-foreground font-medium">{interestLabel.substring(2)}</span>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                                <div className="flex items-center gap-2">
+                                    {domainIcons[iconKey] || <Sparkles className="w-5 h-5 text-primary"/>}
+                                    <span className="text-sm sm:text-base text-foreground font-medium">{interestLabel.substring(2)}</span>
                                 </div>
-                                <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-300">Module In Development</span>
+                                <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-300 whitespace-nowrap self-start sm:self-center">In Development</span>
                             </div>
                             <Progress value={progressValue} className="h-2"/>
-                            <p className="text-xs text-muted-foreground mt-1">{progressValue}% of core features for this domain are in active development.</p>
+                            <p className="text-xs text-muted-foreground mt-2">{progressValue}% of core features for this domain are in active development.</p>
                             <p className="text-xs text-primary mt-1">Preview: Expect initial tools for '{interestLabel.substring(2)}' in early access builds.</p>
                         </div>
                     );

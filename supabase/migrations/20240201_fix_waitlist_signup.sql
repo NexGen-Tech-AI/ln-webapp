@@ -1,3 +1,4 @@
+
 -- Fix Waitlist Signup Implementation
 -- This migration ensures the waitlist signup works properly
 

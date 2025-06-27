@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -83,11 +84,11 @@ const LoginPage = () => {
       exit="out"
       variants={pageVariants}
       transition={pageTransition}
-      className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex justify-center items-center min-h-[calc(100vh-10rem)]"
+      className="container mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 flex justify-center items-center min-h-[calc(100vh-8rem)] sm:min-h-[calc(100vh-10rem)]"
     >
-      <Card className="w-full max-w-md glassmorphic-card shadow-2xl">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold gradient-text text-center">
+      <Card className="w-full max-w-sm sm:max-w-md glassmorphic-card shadow-xl sm:shadow-2xl">
+        <CardHeader className="space-y-1 p-4 sm:p-6">
+          <CardTitle className="text-2xl sm:text-3xl font-bold gradient-text text-center">
             Welcome Back
           </CardTitle>
           <CardDescription className="text-center text-muted-foreground">
@@ -95,7 +96,7 @@ const LoginPage = () => {
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 sm:p-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -105,10 +106,10 @@ const LoginPage = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="you@empire.com"
-                className={errors.email ? 'border-destructive' : ''}
+                className={`h-11 text-sm sm:text-base ${errors.email ? 'border-destructive' : ''}`}
                 disabled={isLoading}
               />
-              {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+              {errors.email && <p className="text-xs sm:text-sm text-destructive mt-1">{errors.email}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -119,16 +120,16 @@ const LoginPage = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Enter your password"
-                className={errors.password ? 'border-destructive' : ''}
+                className={`h-11 text-sm sm:text-base ${errors.password ? 'border-destructive' : ''}`}
                 disabled={isLoading}
               />
-              {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+              {errors.password && <p className="text-xs sm:text-sm text-destructive mt-1">{errors.password}</p>}
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 p-4 sm:p-6">
             <Button
               type="submit"
-              className="w-full bg-primary-gradient hover:opacity-90 transition-opacity duration-300 text-primary-foreground font-semibold flex items-center justify-center space-x-2"
+              className="w-full min-h-[44px] bg-primary-gradient hover:opacity-90 transition-opacity duration-300 text-primary-foreground font-medium sm:font-semibold flex items-center justify-center space-x-2"
               disabled={isLoading}
             >
               {isLoading ? (

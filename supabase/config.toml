@@ -13,11 +13,7 @@ enable_confirmations = true
 [auth.email.template.confirmation]
 subject = "Confirm your LifeNavigator account"
 content_path = "./email-templates/confirmation.html"
-
-# Redirect URLs
-[auth.email.template.confirmation.redirect_to]
-# This will redirect to our custom confirmation page
-default = "http://localhost:3000/auth/confirm"
+redirect_to = "http://localhost:3000/auth/confirm"
 
 # For production, update these URLs
 # site_url = "https://lifenavigator.com"

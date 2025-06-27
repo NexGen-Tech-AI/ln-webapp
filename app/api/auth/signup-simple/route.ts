@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Create Supabase admin client directly to avoid import issues
+// Create Supabase admin client
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -12,6 +12,51 @@ const supabaseAdmin = createClient(
     }
   }
 )
+
+// Generate unique referral code
+async function generateReferralCode(): Promise<string> {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  let code = ''
+  
+  // Keep trying until we get a unique code
+  while (true) {
+    code = ''
+    for (let i = 0; i < 8; i++) {
+      code += characters.charAt(Math.floor(Math.random() * characters.length))
+    }
+    
+    // Check if code already exists
+    const { data: existing } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('referral_code', code)
+      .single()
+    
+    if (!existing) break
+  }
+  
+  return code
+}
+
+// Get next position from sequence
+async function getNextPosition(): Promise<number> {
+  const { data, error } = await supabaseAdmin
+    .rpc('nextval', { sequence_name: 'users_position_seq' })
+  
+  if (error || !data) {
+    // Fallback: get max position and add 1
+    const { data: maxData } = await supabaseAdmin
+      .from('users')
+      .select('position')
+      .order('position', { ascending: false })
+      .limit(1)
+      .single()
+    
+    return (maxData?.position || 99) + 1
+  }
+  
+  return data
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,18 +72,40 @@ export async function POST(request: NextRequest) {
 
     console.log('Signup attempt for:', body.email)
 
+    // First, find referrer if referral code provided
+    let referrerId: string | null = null
+    if (body.referralCode) {
+      const { data: referrer } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('referral_code', body.referralCode)
+        .single()
+      
+      if (referrer) {
+        referrerId = referrer.id
+      }
+    }
+
+    // Generate unique referral code for new user
+    const newUserReferralCode = await generateReferralCode()
+    const position = await getNextPosition()
+
     // Create auth user with all metadata
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: body.email,
       password: body.password,
-      email_confirm: true, // Auto-confirm for testing
+      email_confirm: false, // Proper email verification
       user_metadata: {
         name: body.name || '',
         profession: body.profession || '',
         company: body.company || '',
         interests: body.interests || [],
-        tierPreference: body.tierPreference || 'free',
-        referralCode: body.referralCode || '',
+        tier_preference: body.tierPreference || 'free',
+        referred_by: referrerId,
+        user_type: 'waitlist',
+        auth_provider: 'email',
+        referral_code: newUserReferralCode,
+        position: position
       }
     })
 
@@ -52,77 +119,80 @@ export async function POST(request: NextRequest) {
 
     console.log('Auth user created:', authData.user?.id)
 
-    // Manually insert/update user profile to ensure data is saved
-    if (authData.user) {
-      const { error: profileError } = await supabaseAdmin
-        .from('users')
-        .upsert({
-          id: authData.user.id,
-          email: body.email,
-          name: body.name || '',
-          profession: body.profession || '',
-          company: body.company || '',
-          interests: body.interests || [],
-          tier_preference: body.tierPreference || 'free',
-          referred_by: body.referralCode || null,
-          user_type: 'waitlist',
-          auth_provider: 'email',
-          joined_at: new Date().toISOString()
-        }, {
-          onConflict: 'id',
-          ignoreDuplicates: false
+    // The handle_new_user() trigger will create the user profile
+    // But we need to ensure referral tracking is handled
+    if (authData.user && referrerId) {
+      // Create referral tracking entry
+      const { error: trackingError } = await supabaseAdmin
+        .from('referral_tracking')
+        .insert({
+          referrer_id: referrerId,
+          referred_id: authData.user.id,
+          subscription_tier: body.tierPreference || 'free',
+          subscription_amount: 0
         })
-
-      if (profileError) {
-        console.error('Profile error:', profileError)
-        // Continue even if profile fails - user is created
+      
+      if (trackingError) {
+        console.error('Referral tracking error:', trackingError)
       }
+      
+      // Increment referral count
+      const { error: incrementError } = await supabaseAdmin
+        .rpc('increment_referral_count', { 
+          user_id: referrerId 
+        })
+      
+      if (incrementError) {
+        console.error('Increment referral count error:', incrementError)
+      }
+    }
 
-      // Handle referral if provided
-      if (body.referralCode) {
-        try {
-          // Get referrer
-          const { data: referrer } = await supabaseAdmin
-            .from('users')
-            .select('id')
-            .eq('referral_code', body.referralCode)
-            .single()
-          
-          if (referrer) {
-            // Create referral tracking
-            await supabaseAdmin
-              .from('referral_tracking')
-              .insert({
-                referrer_id: referrer.id,
-                referred_id: authData.user.id,
-                subscription_tier: body.tierPreference || 'free',
-                subscription_amount: 0
-              })
-            
-            // Update referral count
-            await supabaseAdmin
-              .from('users')
-              .update({ referral_count: supabaseAdmin.raw('referral_count + 1') })
-              .eq('id', referrer.id)
-          }
-        } catch (refError) {
-          console.error('Referral processing error:', refError)
-          // Don't fail signup if referral fails
+    // Create default notification preferences
+    if (authData.user) {
+      await supabaseAdmin
+        .from('notification_preferences')
+        .insert({
+          user_id: authData.user.id,
+          email_referral_milestone: true,
+          email_referral_converted: true,
+          email_product_updates: true,
+          email_marketing: false
+        })
+    }
+
+    // Log signup
+    if (authData.user) {
+      await supabaseAdmin
+        .from('audit_logs')
+        .insert({
+          user_id: authData.user.id,
+          action: 'user_signup',
+          entity_type: 'user',
+          entity_id: authData.user.id,
+          details: {
+            method: 'email',
+            referred_by: referrerId,
+            tier_preference: body.tierPreference
+          },
+          ip_address: request.headers.get('x-forwarded-for') || 
+                      request.headers.get('x-real-ip') || 
+                      'unknown',
+          user_agent: request.headers.get('user-agent') || 'unknown'
+        })
+    }
+
+    // Send verification email
+    if (authData.user?.email) {
+      const { error: emailError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'magiclink',
+        email: authData.user.email,
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/confirm`
         }
-      }
-
-      // Log signup
-      try {
-        await supabaseAdmin
-          .from('audit_logs')
-          .insert({
-            user_id: authData.user.id,
-            action: 'user_signup',
-            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-            user_agent: request.headers.get('user-agent') || 'unknown',
-          })
-      } catch (logError) {
-        console.error('Audit log error:', logError)
+      })
+      
+      if (emailError) {
+        console.error('Email verification error:', emailError)
       }
     }
 
@@ -130,7 +200,8 @@ export async function POST(request: NextRequest) {
       { 
         message: 'User created successfully', 
         userId: authData.user?.id,
-        email: authData.user?.email 
+        email: authData.user?.email,
+        requiresEmailConfirmation: true
       },
       { status: 201 }
     )
@@ -140,5 +211,27 @@ export async function POST(request: NextRequest) {
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
+  }
+}
+
+// Create increment function using RPC if needed
+// Note: This function should be created by the migration, this is just a fallback
+async function createIncrementFunctionIfNeeded(): Promise<void> {
+  try {
+    await supabaseAdmin.rpc('increment_referral_count', { user_id: '00000000-0000-0000-0000-000000000000' })
+  } catch (error: any) {
+    if (error?.message?.includes('function') && error?.message?.includes('does not exist')) {
+      // Function doesn't exist, create it
+      const { error: createError } = await supabaseAdmin
+        .from('_migrations')
+        .insert({
+          name: 'increment_referral_count_function',
+          executed_at: new Date().toISOString()
+        })
+      
+      if (createError) {
+        console.error('Could not create increment function marker:', createError)
+      }
+    }
   }
 }

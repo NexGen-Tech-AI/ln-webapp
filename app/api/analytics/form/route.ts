@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       step_reached: any,
       user_id?: string
     } = {
+      
       session_id: body.session_id,
       form_name: body.form_name,
       total_steps: body.total_steps,
