@@ -125,6 +125,14 @@ const LoginPage = () => {
               />
               {errors.password && <p className="text-xs sm:text-sm text-destructive mt-1">{errors.password}</p>}
             </div>
+            <div className="text-right">
+              <Link
+                href="/forgot-password"
+                className="text-xs sm:text-sm text-primary hover:underline"
+              >
+                Forgot Password?
+              </Link>
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 p-4 sm:p-6">
             <Button
