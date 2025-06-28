@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { sendWelcomeEmail } from '@/services/emailService'
+import { emailService } from '@/services/email'
 
 // Create Supabase admin client
 const supabaseAdmin = createClient(
@@ -120,8 +120,35 @@ export async function POST(request: NextRequest) {
 
     console.log('Auth user created:', authData.user?.id)
 
-    // The handle_new_user() trigger will create the user profile
-    // But we need to ensure referral tracking is handled
+    // Create the user profile directly (don't rely on trigger)
+    if (authData.user) {
+      const { error: profileError } = await supabaseAdmin
+        .from('users')
+        .upsert({
+          id: authData.user.id,
+          email: authData.user.email,
+          name: body.name || authData.user.email,
+          profession: body.profession,
+          company: body.company,
+          interests: body.interests || [],
+          tier_preference: body.tierPreference || 'free',
+          referral_code: newUserReferralCode,
+          position: position,
+          referred_by: referrerId,
+          user_type: 'waitlist',
+          auth_provider: 'email',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'id'
+        })
+      
+      if (profileError) {
+        console.error('Profile creation error:', profileError)
+      }
+    }
+
+    // Handle referral tracking
     if (authData.user && referrerId) {
       // Create referral tracking entry
       const { error: trackingError } = await supabaseAdmin
@@ -196,14 +223,16 @@ export async function POST(request: NextRequest) {
       if (linkError) {
         console.error('Email verification link error:', linkError)
       } else if (linkData?.properties?.hashed_token) {
-        // Send custom welcome email with demo access using Resend
-        const emailResult = await sendWelcomeEmail({
-          email: authData.user.email,
-          userName: body.name || authData.user.email.split('@')[0],
-          verificationToken: linkData.properties.hashed_token,
-          includeDemo: true,
-          position: position
-        })
+        // Store verification token in user record for email service
+        await supabaseAdmin
+          .from('users')
+          .update({ 
+            verification_token: linkData.properties.hashed_token 
+          })
+          .eq('id', authData.user.id)
+        
+        // Send welcome email with the new beautiful template
+        const emailResult = await emailService.sendWelcomeEmail(authData.user.id)
         
         if (!emailResult.success) {
           console.error('Failed to send welcome email:', emailResult.error)

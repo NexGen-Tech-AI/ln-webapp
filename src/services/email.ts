@@ -3,8 +3,8 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { emailTemplateService } from './email-templates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = 'LifeNavigator <noreply@lifenavigator.com>'
-const REPLY_TO = 'support@lifenavigator.com'
+const FROM_EMAIL = 'LifeNavigator <noreply@lifenavigator.tech>'
+const REPLY_TO = 'support@lifenavigator.tech'
 
 interface EmailTemplate {
   subject: string
@@ -63,7 +63,7 @@ export class EmailService {
                 <ul>
                   <li>Twitter: <a href="https://twitter.com/lifenavigator">@lifenavigator</a></li>
                   <li>LinkedIn: <a href="https://linkedin.com/company/lifenavigator">LifeNavigator</a></li>
-                  <li>Blog: <a href="https://blog.lifenavigator.com">blog.lifenavigator.com</a></li>
+                  <li>Blog: <a href="https://blog.lifenavigator.tech">blog.lifenavigator.tech</a></li>
                 </ul>
 
                 <p style="margin-top: 30px;">Ready to navigate your empire? We can't wait to have you aboard!</p>
@@ -219,7 +219,7 @@ The LifeNavigator Team`
                 The LifeNavigator Team</p>
               </div>
               <div class="footer">
-                <p>Questions? Reply to this email or contact support@lifenavigator.com</p>
+                <p>Questions? Reply to this email or contact support@lifenavigator.tech</p>
               </div>
             </div>
           </body>
@@ -265,7 +265,7 @@ The LifeNavigator Team`
 
                 <p>LifeNavigator is building the future of life management, and we're excited about the possibility of working together to bring this vision to more people.</p>
                 
-                <p>If you have any immediate questions, please don't hesitate to reach out to partnerships@lifenavigator.com</p>
+                <p>If you have any immediate questions, please don't hesitate to reach out to partnerships@lifenavigator.tech</p>
                 
                 <p>Best regards,<br>
                 The LifeNavigator Partnerships Team</p>
@@ -340,7 +340,7 @@ The LifeNavigator Team`
               </div>
               <div class="footer">
                 <p>Manage your payment method in your <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard">dashboard</a></p>
-                <p>Questions? Contact support@lifenavigator.com</p>
+                <p>Questions? Contact support@lifenavigator.tech</p>
               </div>
             </div>
           </body>
@@ -490,7 +490,7 @@ The LifeNavigator Team`
       // Also notify admin
       await resend.emails.send({
         from: FROM_EMAIL,
-        to: 'admin@lifenavigator.com',
+        to: 'admin@lifenavigator.tech',
         subject: `New Pilot Application: ${user.name || user.email}`,
         html: `<p>New pilot application received from ${user.name || 'Unknown'} (${user.email})</p>
                <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/pilot-applications">View Application</a></p>`,
@@ -523,13 +523,13 @@ The LifeNavigator Team`
         to: partnership.contact_email,
         subject: template.subject,
         html: template.html,
-        reply_to: 'partnerships@lifenavigator.com',
+        reply_to: 'partnerships@lifenavigator.tech',
       })
 
       // Notify partnerships team
       await resend.emails.send({
         from: FROM_EMAIL,
-        to: 'partnerships@lifenavigator.com',
+        to: 'partnerships@lifenavigator.tech',
         subject: `New Partnership Request: ${partnership.company_name}`,
         html: `
           <h2>New Partnership Request</h2>

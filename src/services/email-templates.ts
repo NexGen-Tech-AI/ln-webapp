@@ -56,7 +56,7 @@ const baseTemplate = (content: string, preheader: string = '') => `
                     <p style="margin: 10px 0 0 0; font-size: 12px; color: #64748b;">
                       <a href="{{{unsubscribe_url}}}" style="color: #7c3aed; text-decoration: none;">Unsubscribe</a> · 
                       <a href="{{{preferences_url}}}" style="color: #7c3aed; text-decoration: none;">Email Preferences</a> · 
-                      <a href="https://lifenav.ai/privacy" style="color: #7c3aed; text-decoration: none;">Privacy Policy</a>
+                      <a href="https://lifenavigator.tech/privacy" style="color: #7c3aed; text-decoration: none;">Privacy Policy</a>
                     </p>
                   </td>
                 </tr>
@@ -166,7 +166,7 @@ export const welcomeEmailTemplate = (name: string, verificationUrl: string) => {
             <p style="margin: 0 0 20px 0; font-size: 16px; color: #e0e7ff;">
               As an early member, you'll get special perks when we launch!
             </p>
-            <a href="https://lifenav.ai/referral" style="display: inline-block; padding: 12px 30px; background: #ffffff; color: #312e81; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px;">
+            <a href="https://lifenavigator.tech/referral" style="display: inline-block; padding: 12px 30px; background: #ffffff; color: #312e81; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px;">
               Learn More
             </a>
           </div>
@@ -177,7 +177,7 @@ export const welcomeEmailTemplate = (name: string, verificationUrl: string) => {
               Questions? We're here to help!
             </p>
             <p style="margin: 0; font-size: 14px;">
-              <a href="mailto:support@lifenav.ai" style="color: #7c3aed; text-decoration: none;">support@lifenav.ai</a>
+              <a href="mailto:support@lifenavigator.tech" style="color: #7c3aed; text-decoration: none;">support@lifenavigator.tech</a>
             </p>
           </div>
         </td>
@@ -336,7 +336,7 @@ export const weeklyDigestTemplate = (
           <p style="margin: 0 0 20px 0; font-size: 16px; color: #e0e7ff;">
             Share your referral link and get early access
           </p>
-          <a href="https://lifenav.ai/dashboard" style="display: inline-block; padding: 12px 30px; background: #ffffff; color: #312e81; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px;">
+          <a href="https://lifenavigator.tech/dashboard" style="display: inline-block; padding: 12px 30px; background: #ffffff; color: #312e81; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 6px;">
             Get Your Link
           </a>
         </td>
@@ -352,9 +352,9 @@ export class EmailTemplateService {
   async sendWelcomeEmail(to: string, name: string, verificationUrl: string) {
     try {
       const { data, error } = await resend.emails.send({
-        from: 'LifeNav <onboarding@resend.dev>',
+        from: 'LifeNavigator <noreply@lifenavigator.tech>',
         to,
-        subject: 'Welcome to LifeNav! 🚀',
+        subject: 'Welcome to LifeNavigator! 🚀',
         html: welcomeEmailTemplate(name, verificationUrl),
         tags: [
           { name: 'category', value: 'welcome' }
@@ -381,7 +381,7 @@ export class EmailTemplateService {
   ) {
     try {
       const { data, error } = await resend.emails.send({
-        from: 'LifeNav Updates <updates@resend.dev>',
+        from: 'LifeNavigator Updates <updates@lifenavigator.tech>',
         to,
         subject: title,
         html: updateEmailTemplate(
@@ -417,9 +417,9 @@ export class EmailTemplateService {
   ) {
     try {
       const { data, error } = await resend.emails.send({
-        from: 'LifeNav <digest@resend.dev>',
+        from: 'LifeNavigator <digest@lifenavigator.tech>',
         to,
-        subject: `${userName}, your weekly LifeNav update 📊`,
+        subject: `${userName}, your weekly LifeNavigator update 📊`,
         html: weeklyDigestTemplate(userName, stats),
         tags: [
           { name: 'category', value: 'digest' }
