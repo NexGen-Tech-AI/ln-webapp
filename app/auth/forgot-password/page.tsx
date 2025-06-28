@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/supabase';
 import { Mail, ArrowLeft } from 'lucide-react';
 
-export default function ForgotPasswordPage() {
+const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -173,3 +173,5 @@ export default function ForgotPasswordPage() {
     </motion.div>
   );
 }
+
+export default ForgotPasswordPage;
