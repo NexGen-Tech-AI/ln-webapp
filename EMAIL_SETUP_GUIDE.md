@@ -68,10 +68,20 @@ node test-email.js
 
 ### 1. Welcome Email
 - Location: `/src/emails/WelcomeEmail.tsx`
-- Usage: Sent when new users sign up
+- Usage: Basic welcome email without demo access
 - Features: Verification link, feature highlights, branded design
 
-### 2. Update Email
+### 2. Welcome Email with Demo
+- Location: `/src/emails/WelcomeEmailWithDemo.tsx`
+- Usage: Welcome email with exclusive demo access section
+- Features: Gold waitlist badge, dashboard preview, demo access CTA
+
+### 3. Demo Access Email
+- Location: `/src/emails/DemoAccessEmail.tsx`
+- Usage: Dedicated email for announcing demo availability
+- Features: Browser mockup, live stats preview, testimonial
+
+### 4. Update Email
 - Location: `/src/emails/UpdateEmail.tsx`
 - Usage: Product updates and announcements
 - Features: Customizable content, feature lists, CTA buttons
@@ -85,6 +95,16 @@ POST /api/email/send-welcome
   "email": "user@example.com",
   "userName": "John Doe",
   "verificationUrl": "https://lifenavigator.tech/verify?token=xxx"
+}
+```
+
+### Send Demo Access Email
+```
+POST /api/email/send-demo-access
+{
+  "email": "user@example.com",
+  "userName": "John Doe",
+  "position": 42
 }
 ```
 

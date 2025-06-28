@@ -1,5 +1,7 @@
 import { Resend } from 'resend';
 import { WelcomeEmail } from '@/emails/WelcomeEmail';
+import { WelcomeEmailWithDemo } from '@/emails/WelcomeEmailWithDemo';
+import { DemoAccessEmail } from '@/emails/DemoAccessEmail';
 import { UpdateEmail } from '@/emails/UpdateEmail';
 
 // Initialize Resend with API key
@@ -9,6 +11,8 @@ export interface SendWelcomeEmailParams {
   email: string;
   userName: string;
   verificationToken?: string;
+  includeDemo?: boolean;
+  position?: number;
 }
 
 export interface SendUpdateEmailParams {
@@ -37,18 +41,25 @@ export interface SendBulkEmailParams {
 export async function sendWelcomeEmail({ 
   email, 
   userName, 
-  verificationToken 
+  verificationToken,
+  includeDemo = true,
+  position = 42
 }: SendWelcomeEmailParams) {
   const verificationUrl = verificationToken 
     ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${verificationToken}`
     : `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`;
 
   try {
+    const EmailComponent = includeDemo ? WelcomeEmailWithDemo : WelcomeEmail;
+    const emailProps = includeDemo 
+      ? { userName, verificationUrl, position }
+      : { userName, verificationUrl };
+
     const { data, error } = await resend.emails.send({
       from: 'LifeNavigator <welcome@lifenavigator.tech>',
       to: [email],
       subject: `Welcome to LifeNavigator, ${userName}! 🎉`,
-      react: WelcomeEmail({ userName, verificationUrl }),
+      react: EmailComponent(emailProps),
     });
 
     if (error) {
@@ -58,6 +69,33 @@ export async function sendWelcomeEmail({
     return { success: true, data };
   } catch (error) {
     console.error('Error sending welcome email:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Send dedicated demo access email
+ */
+export async function sendDemoAccessEmail(
+  email: string,
+  userName: string,
+  position: number = 42
+) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'LifeNavigator <updates@lifenavigator.tech>',
+      to: [email],
+      subject: '🌟 Your Exclusive LifeNavigator Demo Access is Ready!',
+      react: DemoAccessEmail({ userName, position }),
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error sending demo access email:', error);
     return { success: false, error };
   }
 }

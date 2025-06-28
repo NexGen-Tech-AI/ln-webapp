@@ -196,11 +196,13 @@ export async function POST(request: NextRequest) {
       if (linkError) {
         console.error('Email verification link error:', linkError)
       } else if (linkData?.properties?.hashed_token) {
-        // Send custom welcome email using Resend
+        // Send custom welcome email with demo access using Resend
         const emailResult = await sendWelcomeEmail({
           email: authData.user.email,
           userName: body.name || authData.user.email.split('@')[0],
-          verificationToken: linkData.properties.hashed_token
+          verificationToken: linkData.properties.hashed_token,
+          includeDemo: true,
+          position: position
         })
         
         if (!emailResult.success) {
