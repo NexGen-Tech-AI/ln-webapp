@@ -31,11 +31,12 @@ import { DemoPreview } from '@/components/dashboard/DemoPreview';
     };
     
     const productUpdates = [
-      { id: 1, title: "LifeNavigator Pilot Access Coming Soon!", content: "Get ready! Selected waitlist members will soon receive exclusive invites to the LifeNavigator Pilot program. Your journey to holistic life management is about to begin.", date: "2025-07-15", type: "Major Announcement", domain: "general" },
-      { id: 2, title: "Preview: AI-Powered Goal Achievement System", content: "Our AI is learning to help you break down big goals into actionable steps. Expect smart suggestions and progress tracking like never before.", date: "2025-07-10", type: "Feature Sneak Peek", domain: "goal setting & achievement tracking" },
-      { id: 3, title: "New: Integrated Wellness Module", content: "We've started building out the Health & Wellness module. Track your habits, set fitness goals, and monitor your well-being directly within LifeNavigator.", date: "2025-07-05", type: "Module Update", domain: "health & wellness management" },
-      { id: 4, title: "Enhanced Financial Planning Tools", content: "We're refining our financial planning tools to offer more robust budgeting, investment tracking, and wealth projection capabilities.", date: "2025-06-28", type: "Feature Enhancement", domain: "financial planning & wealth building"},
-      { id: 5, title: "Secure Document Vault: Phase 1 Complete", content: "The foundational infrastructure for our ultra-secure document vault is now in place. Next up: user interface and sharing options.", date: "2025-06-20", type: "Development Update", domain: "document vault & security"},
+      { id: 1, title: "🎉 Major Partnership: Plaid Integration Coming!", content: "We're thrilled to announce our partnership with Plaid! This integration will bring secure bank connectivity to LifeNavigator, enabling real-time financial insights, automated expense tracking, and intelligent wealth building recommendations. Available first to pilot members, then rolling out to all paid tiers.", date: "2025-07-28", type: "Partnership Announcement", domain: "financial planning & wealth building", isNew: true, highlight: true },
+      { id: 2, title: "LifeNavigator Pilot Access Coming Soon!", content: "Get ready! Selected waitlist members will soon receive exclusive invites to the LifeNavigator Pilot program. Your journey to holistic life management is about to begin.", date: "2025-07-15", type: "Major Announcement", domain: "general" },
+      { id: 3, title: "Preview: AI-Powered Goal Achievement System", content: "Our AI is learning to help you break down big goals into actionable steps. Expect smart suggestions and progress tracking like never before.", date: "2025-07-10", type: "Feature Sneak Peek", domain: "goal setting & achievement tracking" },
+      { id: 4, title: "New: Integrated Wellness Module", content: "We've started building out the Health & Wellness module. Track your habits, set fitness goals, and monitor your well-being directly within LifeNavigator.", date: "2025-07-05", type: "Module Update", domain: "health & wellness management" },
+      { id: 5, title: "Enhanced Financial Planning Tools", content: "We're refining our financial planning tools to offer more robust budgeting, investment tracking, and wealth projection capabilities.", date: "2025-06-28", type: "Feature Enhancement", domain: "financial planning & wealth building"},
+      { id: 6, title: "Secure Document Vault: Phase 1 Complete", content: "The foundational infrastructure for our ultra-secure document vault is now in place. Next up: user interface and sharing options.", date: "2025-06-20", type: "Development Update", domain: "document vault & security"},
     ];
 
     const CountdownTimer = ({ launchDate }) => {
@@ -369,15 +370,44 @@ import { DemoPreview } from '@/components/dashboard/DemoPreview';
                 </CardHeader>
                 <CardContent className="space-y-4 sm:space-y-6 max-h-[400px] sm:max-h-[500px] md:max-h-[600px] overflow-y-auto pr-2">
                   {filteredUpdates.length > 0 ? filteredUpdates.map(update => (
-                    <div key={update.id} className="pb-4 border-b border-border last:border-b-0">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1 gap-1 sm:gap-2">
-                        <h3 className="text-sm sm:text-base md:text-lg font-semibold text-primary">{update.title}</h3>
-                        <span className="text-xs capitalize px-2 py-1 rounded-full bg-primary/10 text-primary-foreground border border-primary/30 whitespace-nowrap self-start flex-shrink-0">
-                          {update.domain.split(" ")[0]}
-                        </span>
+                    <div key={update.id} className={`pb-4 border-b border-border last:border-b-0 ${update.highlight ? 'relative' : ''}`}>
+                      {update.highlight && (
+                        <div className="absolute -left-3 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full"></div>
+                      )}
+                      <div className={`${update.highlight ? 'pl-3' : ''}`}>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1 gap-1 sm:gap-2">
+                          <h3 className={`text-sm sm:text-base md:text-lg font-semibold ${update.highlight ? 'bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent' : 'text-primary'}`}>
+                            {update.title}
+                          </h3>
+                          <div className="flex gap-2 items-center">
+                            {update.isNew && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 whitespace-nowrap animate-pulse">
+                                NEW
+                              </span>
+                            )}
+                            <span className={`text-xs capitalize px-2 py-1 rounded-full whitespace-nowrap self-start flex-shrink-0 ${
+                              update.highlight 
+                                ? 'bg-primary text-primary-foreground font-medium' 
+                                : 'bg-primary/10 text-primary-foreground border border-primary/30'
+                            }`}>
+                              {update.domain.split(" ")[0]}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                          {new Date(update.date).toLocaleDateString()} - 
+                          <span className={`font-medium ${update.highlight ? 'text-primary' : 'text-foreground'}`}> {update.type}</span>
+                        </p>
+                        <p className="text-foreground text-xs sm:text-sm">{update.content}</p>
+                        {update.highlight && (
+                          <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                            <p className="text-xs text-primary flex items-center">
+                              <Info className="w-4 h-4 mr-2" />
+                              This feature will revolutionize how you manage your finances in LifeNavigator
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-2">{new Date(update.date).toLocaleDateString()} - <span className="font-medium text-foreground">{update.type}</span></p>
-                      <p className="text-foreground text-xs sm:text-sm">{update.content}</p>
                     </div>
                   )) : (
                     <p className="text-muted-foreground">No specific updates for your selected domains right now, but general platform news will appear here!</p>

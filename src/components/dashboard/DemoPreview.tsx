@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Loader2 } from 'lucide-react';
 
 export const DemoPreview = () => {
   const demoUrl = "https://lifenavigator-p4l7rhvtw-riffe007s-projects.vercel.app/dashboard";
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Generate a screenshot URL or use a static image
+    // For production, we'll use a static screenshot image
+    setScreenshotUrl('/demo-screenshot.png');
+  }, []);
 
   return (
     <motion.div 
@@ -35,19 +43,41 @@ export const DemoPreview = () => {
                 background: '#0a0a0a'
               }}
             >
-              <iframe 
-                src={demoUrl}
-                style={{
-                  width: '1366px',
-                  height: '768px',
-                  transform: 'scale(0.25)',
-                  transformOrigin: 'top left',
-                  border: 'none',
-                  pointerEvents: 'none'
-                }}
-                title="LifeNavigator Demo Preview"
-                loading="lazy"
-              />
+              {/* Show loading state */}
+              {!imageLoaded && screenshotUrl && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              )}
+              
+              {/* Try static image first for production reliability */}
+              {screenshotUrl ? (
+                <img 
+                  src={screenshotUrl}
+                  alt="LifeNavigator Demo Preview"
+                  className="w-full h-full object-cover"
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => {
+                    // Fallback to iframe if image fails
+                    setScreenshotUrl(null);
+                  }}
+                />
+              ) : (
+                <iframe 
+                  src={demoUrl}
+                  style={{
+                    width: '1366px',
+                    height: '768px',
+                    transform: 'scale(0.25)',
+                    transformOrigin: 'top left',
+                    border: 'none',
+                    pointerEvents: 'none'
+                  }}
+                  title="LifeNavigator Demo Preview"
+                  loading="lazy"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              )}
             </div>
             
             {/* Hover Overlay */}
