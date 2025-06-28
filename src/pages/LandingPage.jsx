@@ -53,15 +53,12 @@ import { useRouter } from 'next/navigation';
       useEffect(() => {
         const fetchUserCount = async () => {
           try {
-            // Only fetch if Supabase is configured
-            if (isSupabaseConfigured) {
-              const { count, error } = await supabase
-                .from('users')
-                .select('*', { count: 'exact', head: true });
-              
-              if (!error && count) {
-                setUserCount(100 + count);
-              }
+            // Use the API endpoint instead of direct Supabase access
+            const response = await fetch('/api/waitlist-count');
+            const data = await response.json();
+            
+            if (data.count) {
+              setUserCount(100 + data.count);
             }
           } catch (err) {
             console.error('Error fetching user count:', err);
@@ -70,6 +67,10 @@ import { useRouter } from 'next/navigation';
         };
 
         fetchUserCount();
+        
+        // Refresh count every 30 seconds
+        const interval = setInterval(fetchUserCount, 30000);
+        return () => clearInterval(interval);
       }, []);
 
 
