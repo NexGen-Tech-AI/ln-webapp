@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendWelcomeEmail } from '@/services/emailService'
 
 // Create Supabase admin client
 const supabaseAdmin = createClient(
@@ -181,9 +182,10 @@ export async function POST(request: NextRequest) {
         })
     }
 
-    // Send verification email
+    // Send custom welcome email with verification link
     if (authData.user?.email) {
-      const { error: emailError } = await supabaseAdmin.auth.admin.generateLink({
+      // Generate verification link
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: authData.user.email,
         options: {
@@ -191,8 +193,19 @@ export async function POST(request: NextRequest) {
         }
       })
       
-      if (emailError) {
-        console.error('Email verification error:', emailError)
+      if (linkError) {
+        console.error('Email verification link error:', linkError)
+      } else if (linkData?.properties?.hashed_token) {
+        // Send custom welcome email using Resend
+        const emailResult = await sendWelcomeEmail({
+          email: authData.user.email,
+          userName: body.name || authData.user.email.split('@')[0],
+          verificationToken: linkData.properties.hashed_token
+        })
+        
+        if (!emailResult.success) {
+          console.error('Failed to send welcome email:', emailResult.error)
+        }
       }
     }
 
