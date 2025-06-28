@@ -27,8 +27,7 @@ if ! command_exists npx; then
 fi
 
 if ! command_exists supabase; then
-    echo -e "${YELLOW}⚠️  Supabase CLI not found. Installing...${NC}"
-    npm install -g supabase
+    echo -e "${YELLOW}⚠️  Supabase CLI not found. Will use npx instead...${NC}"
 fi
 
 # Check for required environment variables
