@@ -137,10 +137,15 @@ export class ApiService {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
+      // CRITICAL FIX: Use upsert instead of update to handle cases where record doesn't exist
       const { data, error } = await supabase
         .from('users')
-        .update(updates)
-        .eq('id', user.id)
+        .upsert({
+          id: user.id,  // MUST include ID for upsert
+          email: user.email,  // Include email for safety
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
         .select()
         .single()
 
@@ -149,6 +154,40 @@ export class ApiService {
       return { success: true, user: data }
     } catch (error) {
       console.error('Update profile error:', error)
+      return { success: false, error: error instanceof Error ? error.message : String(error) }
+    }
+  }
+
+  // Complete user onboarding with full profile data
+  async completeOnboarding(profileData: {
+    name: string
+    profession: string
+    company: string
+    interests: string[]
+    tier_preference?: string
+  }) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      const { data, error } = await supabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          ...profileData,
+          onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      return { success: true, user: data }
+    } catch (error) {
+      console.error('Complete onboarding error:', error)
       return { success: false, error: error instanceof Error ? error.message : String(error) }
     }
   }
