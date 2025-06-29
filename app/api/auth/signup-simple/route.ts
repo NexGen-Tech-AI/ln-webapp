@@ -72,6 +72,13 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Signup attempt for:', body.email)
+    console.log('Received data:', {
+      name: body.name,
+      profession: body.profession,
+      company: body.company,
+      interests: body.interests,
+      tierPreference: body.tierPreference
+    })
 
     // First, find referrer if referral code provided
     let referrerId: string | null = null
@@ -145,6 +152,22 @@ export async function POST(request: NextRequest) {
       
       if (profileError) {
         console.error('Profile creation error:', profileError)
+        // CRITICAL: Return error so frontend knows signup failed
+        return NextResponse.json(
+          { 
+            error: 'Failed to create user profile', 
+            details: profileError.message,
+            code: profileError.code 
+          },
+          { status: 500 }
+        )
+      } else {
+        console.log('Profile created successfully with data:', {
+          name: body.name,
+          profession: body.profession,
+          company: body.company,
+          interests: body.interests
+        })
       }
     }
 
