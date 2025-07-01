@@ -129,25 +129,38 @@ export async function POST(request: NextRequest) {
 
     // Create the user profile directly (don't rely on trigger)
     if (authData.user) {
+      // First check what columns exist
+      const { data: existingUser } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('id', authData.user.id)
+        .single()
+      
+      // Build update object with only fields that might exist
+      const userUpdate: any = {
+        id: authData.user.id,
+        email: authData.user.email,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      // Add optional fields - these will be ignored if columns don't exist
+      if (body.name) userUpdate.name = body.name
+      if (body.profession) userUpdate.profession = body.profession
+      if (body.company) userUpdate.company = body.company
+      if (body.interests) userUpdate.interests = body.interests
+      if (body.tierPreference) userUpdate.tier_preference = body.tierPreference
+      if (newUserReferralCode) userUpdate.referral_code = newUserReferralCode
+      if (position) userUpdate.position = position
+      if (referrerId) userUpdate.referred_by = referrerId
+      userUpdate.user_type = 'waitlist'
+      userUpdate.auth_provider = 'email'
+      
       const { error: profileError } = await supabaseAdmin
         .from('users')
-        .upsert({
-          id: authData.user.id,
-          email: authData.user.email,
-          name: body.name || authData.user.email,
-          profession: body.profession,
-          company: body.company,
-          interests: body.interests || [],
-          tier_preference: body.tierPreference || 'free',
-          referral_code: newUserReferralCode,
-          position: position,
-          referred_by: referrerId,
-          user_type: 'waitlist',
-          auth_provider: 'email',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'id'
+        .upsert(userUpdate, {
+          onConflict: 'id',
+          ignoreDuplicates: false
         })
       
       if (profileError) {
