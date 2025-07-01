@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import './styles/responsive-fixes.css';
 
     @tailwind base;
     @tailwind components;
@@ -118,9 +119,6 @@
       animation: meteor linear infinite;
       animation-duration: 2s;
     }
-
-/* Import responsive fixes */
-@import './styles/responsive-fixes.css';
 
 /* Global Responsive Utilities */
 
